@@ -2,6 +2,13 @@
 
 验收环境：Mass-PC / Windows 11，日期见各节。开发与测试只在本项目目录内进行；未调用其他模型、AI CLI 或子 Agent。
 
+## 2026-11-04：0.2.1 插件图标与面向用户的 README
+
+- 新增 `icon.svg`（64×64 视口，内嵌 144px 卡尔图，圆角裁剪，12 KB）。插件图标在 DSH 侧取自包的 manifest `icon` 字段或 `./icon` 导出（见 `@deepseek-ai/dsh-host-plugin-inventory` 的 `icon` schema 说明），因此 `package.json` 同时声明 `"icon": "./icon.svg"` 与 `exports["./icon"]`，`files` 也包含它。
+- 包边界检查新增两条断言：`icon.svg` 必须进包，manifest 与导出都必须指向它；同时保留原有图片白名单（仍只有两张 Carl 变体、市场图标与四张文档截图）。
+- `npm run check`：**37/37 单元测试通过**，包边界 **21 files / 786.7 KiB**。
+- README 重写为普通用户视角（功能、安装、设置表、隐私、兼容性、已知限制、卸载、简短开发节、英文段），开发细节仍只留在 `docs/` 与 `IMPLEMENTATION_TASK.md`。
+
 ## 2026-11-04：0.2.0 公开发布
 
 - npm：`dsh-thanks-carl@0.2.0` 已发布为 `latest`（tarball 794 KB / 20 文件）。把已发布 tarball 下载解包后复查，无旧供应商文案、旧配置键或旧 projection 字段。

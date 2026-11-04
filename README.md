@@ -1,47 +1,80 @@
 # 谢谢卡尔 · Thanks Carl
 
-DSH **0.2.1-rc.2+** 原生 Web 插件（本地验收在 0.2.2-alpha.2 通过）：在真实的一轮任务结束后，偶尔让卡尔从屏幕边缘探头；也可以提醒你喝水、吃饭和休息。完全本地调度，不发送聊天消息，不调用模型。
+[![npm](https://img.shields.io/npm/v/dsh-thanks-carl.svg)](https://www.npmjs.com/package/dsh-thanks-carl)
+[![license](https://img.shields.io/npm/l/dsh-thanks-carl.svg)](LICENSE)
+[![dsh](https://img.shields.io/badge/dsh-0.2.1%2B-4D6BFE)](https://github.com/deepseek-ai/deepseek-harness)
 
-![任务完成后卡尔从边缘探头](<docs/screenshots/01-completion.png>)
+每轮任务做完，让那只刺猬从屏幕边缘探头，跟你说一句「谢谢卡尔」；它也会提醒你喝水、吃饭、起来动一动。
 
-默认：事件彩蛋模式、15% 出现概率、30 分钟冷却、静音；喝水 60 分钟，吃饭 12:00 / 18:00，00:00–08:00 勿扰。可切换常驻与必出现。
+插件里自带卡尔照片，装上就能用——不用自己找图，也不用配置。
 
-**内置素材：**插件自带卡尔原版梗图照片，包浆低清版与同一照片的清晰版均可直接使用，不需要上传图片。也可选填自己的照片，随时一键恢复卡尔原图。
+![任务完成后卡尔从屏幕边缘探头](<docs/screenshots/01-completion.png>)
+
+## 功能
+
+- **任务完成的彩蛋**：一轮真的做完了，卡尔才有机会探头；默认 15% 概率、间隔至少 30 分钟，出现时点「谢谢卡尔」或关掉气泡它就走了。失败、取消、中断的轮次它不会来道谢。
+- **两种模式**：事件彩蛋（偶尔出现）或常驻桌宠（一直在，点一下有反应）。常驻模式可以关掉「完成彩蛋」只留桌宠。
+- **自带照片**：原版包浆图，也可以换成同一张照片的清晰版；想用自己的图就上传一张，随时一键恢复卡尔原图。
+- **本地提醒**：喝水（默认每 60 分钟）、吃饭（默认 12:00、18:00）、工作间歇（默认关）；提醒带「稍后 10 分钟」。默认 00:00–08:00 勿扰。
+- **不打扰**：默认真静音、气泡只占屏幕边缘一小块、不遮挡点击；跟随系统「减少动态效果」设置。
+- **完全本地**：不联网、不读聊天内容、不发消息、不调用模型。
 
 ## 安装
 
-在 DSH 的插件市场里安装，或者直接用 CLI：
+在 DSH 的插件市场里装，或者用命令行：
 
 ```powershell
 dsh plugin --profile web add dsh-thanks-carl
 ```
 
-需要已安装的 DSH 0.2.1-rc.2+、Node.js 22.12+、支持 Web Locks 的现代浏览器。使用 HTTPS 或 localhost；无可用本地存储 / Web Locks 时自动提醒安全停用，仍可手动预览。
+装好后**重启一次 `dsh web`**，再刷新页面，卡尔就出现了。
 
-从源码安装：
-
-```powershell
-npm ci
-npm run build
-# 明确指定目标 profile；脚本不会停止、重启任何服务
-pwsh -File scripts/install.ps1 -Profile web
-```
-
-安装脚本仅添加当前插件的本地链接、依赖与 bundle 声明，不运行包管理器重整其他依赖。**需在该 profile 下一次正常启动时激活；单纯刷新当前正在运行的旧服务不等于已安装。**
+需要 DSH Web GUI 0.2.1 或更高版本（不支持 0.3）；页面需在 `https` 或 `localhost` 下打开，浏览器过旧或被禁用本地存储时会自动停用，不影响 DSH 本身。
 
 ## 使用
 
-激活后：DSH 侧边栏「插件」→「已安装插件」→ **dsh-thanks-carl** → 插件详情下方的「插件设置」。配置立即保存于当前浏览器，不新增「设置」导航页，也不混入「通用设置」。
+侧边栏「插件」→「已安装插件」→ **dsh-thanks-carl** → 页面底部的「插件设置」。设置改完立即生效，只存在你当前浏览器里。
 
 ![插件设置](<docs/screenshots/02-settings.png>)
 
-1. 安装后直接就能看到卡尔；默认提供原梗包浆图，也可切换同一照片的清晰版。自定义图片为可选项。
-2. 点击“召唤卡尔”试用；气泡关闭 / 感谢后离开，拖动照片可以左右停靠。
-3. 设置提醒时刻、勿扰、大小和模式。预览明确标记“预览”，忽略勿扰但不会发送聊天。
+| 设置 | 说明 |
+|---|---|
+| 模式 | 事件彩蛋 / 常驻桌宠 |
+| 本轮完成彩蛋 | 任务完成后允许卡尔出现 |
+| 任务完成必出现 | 勾上则每轮都来；不勾按概率和间隔出现 |
+| 出现概率 / 彩蛋间隔 | 默认 0.15 / 30 分钟 |
+| 画质 | 包浆版本 / 同图相对清晰版本 |
+| 大小、停靠边缘 | 76–128 px，贴左或贴右 |
+| 轻提示音 | 默认关 |
+| 喝水提醒 / 每隔多少分钟 | 默认开，60 分钟 |
+| 吃饭提醒 / 吃饭时刻 | 默认 12:00、18:00 |
+| 工作间歇提醒 / 工作间歇 | 默认关 |
+| 勿扰时段 | 默认 00:00–08:00 |
+
+「召唤卡尔」立即让卡尔出现；下方的预览按钮可以分别看完成彩蛋、喝水、吃饭、休息长什么样。气泡上的「稍后 10 分钟」只对提醒有效。
 
 ![喝水提醒](<docs/screenshots/03-water.png>)
 
-默认只对当前 DSH 主视图中的会话显示彩蛋，切会话和刷新不补播。真实 `completed` 仅意味着这一轮结束，不会宣称“代码正确”或“测试通过”；失败、取消、阻塞、截断和恢复中断不祝贺。
+把卡尔拖到屏幕另一侧就会换边停靠；手机上它会缩在角落，不挡内容。
+
+## 隐私
+
+- 不联网、无遥测、不读对话正文，只判断「这一轮是否正常结束」。
+- 设置和上传的图片都保存在你当前浏览器里（localStorage），不跨设备同步。
+- 不申请系统通知权限，不采集任何统计。
+
+## 兼容性
+
+- DeepSeek Harness `>=0.2.1-0 <0.3.0-0`（Web GUI）
+- Node.js `>=22.12`（仅安装时用到）
+- 支持 Web Locks 的现代浏览器（Chrome / Edge / Firefox / Safari 近期版本）
+
+## 已知限制
+
+- 页面要开着才可能提醒；关掉浏览器就不会响，也不会弹系统通知。
+- 后台标签页或电脑睡眠期间错过的提醒不会补发。
+- 同一浏览器多标签页会去重，只出现一次；换浏览器或换端口就是另一份设置。
+- 只在当前会话视图里生效，切换会话或刷新不补播。
 
 ## 卸载
 
@@ -49,45 +82,44 @@ pwsh -File scripts/install.ps1 -Profile web
 pwsh -File scripts/uninstall.ps1 -Profile web
 ```
 
-可重复执行，只移除当前项目的 junction、依赖与 bundle，不递归删除源码。下一次正常启动不再加载。需要立即隐藏时先在卡尔设置中关闭“启用卡尔”；持久化偏好不会自动删除。可在浏览器开发者工具中仅删除当前站点 `thanks-carl.*` 的 localStorage 项。
+也可以先到设置里关掉「启用卡尔」临时隐藏。卸载只移除本地链接和挂载，不删你的源码；设置项可以在浏览器开发者工具里删掉本站的 `thanks-carl.*` 记录。
 
-## 可靠性与限制
-
-- 真实 Host 生命周期：`running → turn/start → turn/end → idle`；跨标签 Web Locks + 持久化 ledger 去重。只监听结构化状态，不读聊天内容。
-- 提醒优先于完成和彩蛋，只展示一个；支持关闭、10 分钟后提醒；后台/睡眠不堆积补发。间隔提醒容忍窗口 2 分钟，吃饭 5 分钟；过期丢弃；时区变化与时钟回拨重新计时并保留已消费的时刻 ID。
-- 设置按浏览器站点持久化，不跨设备同步。不申请系统通知权限，不承诺浏览器关闭后提醒。跨浏览器 / 不同站点没有共享去重，这是本地存储边界。
-- 图片和气泡占小范围边缘区域，不覆盖全屏点击层；支持 reduced-motion。浏览器可能拦截未经用户手势的可选提示音，默认从不播放。
-- 不修改 DSH 内核，不替换聊天或输入框；只注册 `shell.overlay` 和 `plugins.bundle.config`。发布包无 runtime npm 依赖。
-
-## 开发与验收
-
-所有测试配置和会话都在本项目 `.runtime` 中，**不复制真实凭据或其他 profile 插件**，测试端口为 3345。以下命令仅启动这个测试实例，不操作正在使用的 3333。
+## 开发
 
 ```powershell
 npm ci
-npm run check
+npm run check        # 构建 + 单测 + 包边界
 pwsh -File scripts/test-install.ps1
-pwsh -File scripts/setup-isolated.ps1
-# 保持此命令运行。仅开发测试用夹具，真实 driver 在 pre-step 结束，不进入模型请求。
-pwsh -File scripts/run-isolated.ps1 -Fixture 2>&1 | Tee-Object -FilePath .runtime/host.log
-# 在另一个终端执行；需要 Edge，或设置 CARL_BROWSER 为 Chromium 绝对路径
-npm run verify
-# 只会停止已验证属于 carl-test profile 的测试端口进程
-pwsh -File scripts/stop-isolated.ps1
 ```
 
-首次重新生成内置图片需自行取得对应文件并确认有权使用：
+想跑真实浏览器里的完整验收，见[验收记录](<docs/verification.md>)里的隔离实例步骤（测试端口 3345，不碰正在用的 3333）。
 
-```powershell
-# 来源、预期 SHA256 和版权边界见 docs/technical-decisions.md。
-npm run prepare:personal
-```
-
-- [技术/API 与素材查证](<docs/technical-decisions.md>)
-- [实际验收记录与截图入口](<docs/verification.md>)
-- [本地浏览器自动验收脚本](<scripts/verify-browser.mjs>)
+- [技术决策与素材出处](<docs/technical-decisions.md>)
+- [实际验收记录与截图](<docs/verification.md>)
 - [任务说明](<IMPLEMENTATION_TASK.md>)
 
-## 许可
+## 致谢与声明
 
-代码为 [MIT](<LICENSE>)。内置卡尔梗图照片来自公开流传的 Carl the Hedgehog 梗图（原始照片为 Pixabay 用户 amayaeguizabal 上传，2014），按原样随插件提供，仅用于这个插件的个人、非商业使用；如权利人提出异议会移除。素材出处与核实记录见 [技术决策与素材核实](<docs/technical-decisions.md>)。
+内置照片是公开流传的 Carl the Hedgehog 梗图（原始照片为 Pixabay 用户 amayaeguizabal 于 2014 年上传），按原样随插件提供，仅用于这个插件的个人、非商业用途；如权利人提出异议会移除。出处与核实记录见[技术决策与素材出处](<docs/technical-decisions.md>)。
+
+## License
+
+代码为 [MIT](LICENSE)。
+
+---
+
+## English
+
+A quiet Carl the Hedgehog easter egg for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness): when a turn really finishes, Carl peeks in from the edge of the screen and says "谢谢卡尔" — and reminds you to drink water, eat, and take breaks.
+
+- **Completion easter egg**: 15% chance per finished turn, 30-minute cooldown by default; failed, cancelled or interrupted turns are never congratulated.
+- **Two modes**: occasional easter egg, or a resident desktop pet.
+- **Bundled photo**: the original patina version, a clearer variant of the same photo, or upload your own and restore the original anytime.
+- **Local reminders**: water every 60 minutes, meals at 12:00 and 18:00, work breaks off by default, quiet hours 00:00–08:00, snooze 10 minutes.
+- **Fully local**: no network, no telemetry, never reads your conversation, no model calls.
+
+```powershell
+dsh plugin --profile web add dsh-thanks-carl
+```
+
+Restart `dsh web` once, then reload the page. Settings live under Plugins → Installed → dsh-thanks-carl → Plugin settings. Requires DSH 0.2.1+ (<0.3) and Node 22.12+ at install time. MIT for the code; the Carl meme photo ships for personal, non-commercial use with this plugin only.
