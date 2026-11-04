@@ -1,0 +1,17 @@
+import { spawnSync } from 'node:child_process';
+import { readFile, mkdir, writeFile } from 'node:fs/promises';
+import assert from 'node:assert/strict';
+const npm = process.env.npm_execpath;
+if (!npm) throw new Error('Run through npm run check so the exact npm executable is known.');
+const child = spawnSync(process.execPath,[npm,'pack','--dry-run','--json','--ignore-scripts'],{encoding:'utf8'});
+if (child.status !== 0) throw new Error(child.stderr || 'npm pack dry-run failed');
+const result=JSON.parse(child.stdout)[0],paths=result.files.map(f=>f.path);
+assert.ok(paths.includes('lib/host.js'));assert.ok(paths.includes('lib/client.js'));assert.ok(paths.includes('cordis.patch.yml'));
+assert.ok(paths.includes('assets/choose-photo.svg'));assert.ok(paths.includes('LICENSE'));
+assert.ok(!paths.some(p=>/^(test|\.runtime|\.research|\.local-assets|artifacts|node_modules)\//.test(p)));
+const imageFiles=paths.filter(p=>/\.(png|jpe?g|webp)$/i.test(p));
+assert.deepEqual(imageFiles.sort(),['assets/carl-clear.png','assets/carl-patina.png','assets/icon-180.png','docs/screenshots/01-completion.png','docs/screenshots/02-settings.png','docs/screenshots/03-water.png','docs/screenshots/04-mobile.png'],'Only the Carl variants, the market icon and the four documentation screenshots may be included; no private uploads or verification dumps');
+const manifest=JSON.parse(await readFile('package.json','utf8'));assert.equal(Object.keys(manifest.dependencies??{}).length,0);
+const host=await readFile('lib/host.js','utf8');assert.ok(!host.includes('thanks-carl-fixture'));
+await mkdir('artifacts',{recursive:true});await writeFile('artifacts/distribution-check.json',JSON.stringify({passed:true,filename:result.filename,size:result.size,files:paths,bundledCarlVariants:imageFiles,noFixture:true,runtimeDependencies:0},null,2));
+console.log(`Package boundary passed: ${paths.length} files, ${(result.size/1024).toFixed(1)} KiB archive estimate; only the intended Carl variants, market icon and docs screenshots are included; no private uploads, fixture, runtime state, or runtime dependencies.`);

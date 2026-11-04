@@ -1,0 +1,38 @@
+{
+  "name": "dsh-thanks-carl",
+  "version": "0.2.0",
+  "description": "Quiet, local-only Carl completion easter eggs and water/meal/rest reminders for DSH",
+  "type": "module",
+  "license": "MIT",
+  "author": "gongfpp",
+  "keywords": ["dsh", "dsh-plugin", "easter-egg", "carl", "reminder"],
+  "homepage": "https://github.com/gongfpp/dsh-thanks-carl#readme",
+  "repository": { "type": "git", "url": "git+https://github.com/gongfpp/dsh-thanks-carl.git" },
+  "bugs": { "url": "https://github.com/gongfpp/dsh-thanks-carl/issues" },
+  "engines": { "dsh": ">=0.2.1-0 <0.3.0-0", "node": ">=22.12" },
+  "exports": { ".": "./lib/host.js", "./client": "./lib/client.js", "./package.json": "./package.json" },
+  "files": ["lib/", "assets/", "cordis.patch.yml", "README.md", "CHANGELOG.md", "LICENSE", "docs/technical-decisions.md", "docs/verification.md", "docs/screenshots/", "scripts/install.ps1", "scripts/uninstall.ps1"],
+  "publishConfig": { "access": "public", "registry": "https://registry.npmjs.org/" },
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": { "platform": "web", "immediately": true, "inject": ["@deepseek-ai/dsh-client-ui-layout", "@deepseek-ai/dsh-client-ui-plugin-manager", "@deepseek-ai/dsh-client-ui-session"] }
+  },
+  "dshhub": {
+    "schemaVersion": 1,
+    "displayName": "dsh-thanks-carl",
+    "summary": "任务完成后偶尔让卡尔从屏幕边缘探头，并提醒喝水、吃饭、休息；完全本地调度，不发送消息、不调用模型。",
+    "categories": ["fun"],
+    "surfaces": ["host", "web"],
+    "capabilities": {},
+    "compatibility": { "dsh": ">=0.2.1-0 <0.3.0-0", "node": ">=22.12" },
+    "permissions": {}
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test test/*.test.mjs",
+    "check": "npm run build && npm test && node scripts/check-package.mjs",
+    "verify": "node scripts/verify-browser.mjs",
+    "prepare:personal": "node scripts/prepare-personal-assets.mjs"
+  },
+  "devDependencies": { "esbuild": "0.25.12", "playwright": "1.56.1", "sharp": "0.34.5" }
+}
