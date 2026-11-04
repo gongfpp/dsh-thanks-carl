@@ -2,6 +2,14 @@
 
 验收环境：Mass-PC / Windows 11，日期见各节。开发与测试只在本项目目录内进行；未调用其他模型、AI CLI 或子 Agent。
 
+## 2026-11-04：0.2.0 公开发布
+
+- npm：`dsh-thanks-carl@0.2.0` 已发布为 `latest`（tarball 794 KB / 20 文件）。把已发布 tarball 下载解包后复查，无旧供应商文案、旧配置键或旧 projection 字段。
+- 发布物可用性：在空目录执行 `npm install dsh-thanks-carl@0.2.0` 后 `import('dsh-thanks-carl')` 返回 `name=thanks-carl`、`inject=["connection","agents"]`、`apply` 为函数。
+- 安装脚本：`pwsh -File scripts/test-install.ps1` 通过（安装两次、卸载两次、无关依赖与 bundle 保留、源码未动）。
+- GitHub：公开仓库 <https://github.com/gongfpp/dsh-thanks-carl>，默认分支 `main`，48 个文件，带 `dsh-plugin` topic。
+- 市场：向 awesome-dsh-plugin 提交单条投稿 PR [#12015](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/12015)；仓库创建未满 1 天，年龄门槛由 CI 自动重跑。
+
 ## 2026-11-04：移除供应商联动文案后的复验
 
 按用户要求删除全部旧供应商联动（配置项、Host 侧 projection 查询、UI 文案切换与相关文档）。感谢按钮现在只有一种来源：`thanksText(reminderKind)` —— 喝水提醒为「谢谢谢谢卡尔」，其余一律「谢谢卡尔」。契约测试新增一条仓库级扫描：源码、构建产物、测试与文档中不得再出现旧供应商名称、旧配置键或旧 projection 字段。
