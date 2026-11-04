@@ -6,15 +6,19 @@ if (!npm) throw new Error('Run through npm run check so the exact npm executable
 const child = spawnSync(process.execPath,[npm,'pack','--dry-run','--json','--ignore-scripts'],{encoding:'utf8'});
 if (child.status !== 0) throw new Error(child.stderr || 'npm pack dry-run failed');
 const result=JSON.parse(child.stdout)[0],paths=result.files.map(f=>f.path);
-assert.ok(paths.includes('lib/host.js'));assert.ok(paths.includes('lib/client.js'));assert.ok(paths.includes('cordis.patch.yml'));
+assert.ok(paths.includes('index.js'),'the Host half must sit at the package root as index.js');assert.ok(paths.includes('client.js'),'the client half must sit at the package root as client.js');assert.ok(paths.includes('cordis.patch.yml'));
 assert.ok(paths.includes('assets/choose-photo.svg'));assert.ok(paths.includes('LICENSE'));
 assert.ok(paths.includes('icon.svg'),'the installed plugin needs icon.svg so DSH can show it in the plugin list');
-assert.ok(!paths.some(p=>/^(test|\.runtime|\.research|\.local-assets|artifacts|node_modules)\//.test(p)));
+assert.ok(paths.includes('locale/zh.json'));assert.ok(paths.includes('locale/en.json'),'display metadata needs a locale file for the default UI language and for Chinese');
+assert.ok(!paths.some(p=>/^(test|\.runtime|\.research|\.local-assets|artifacts|node_modules|docs\/catalog-entry)/.test(p)),'the repository-only catalog entry and development directories must stay out of the package');
 const imageFiles=paths.filter(p=>/\.(png|jpe?g|webp)$/i.test(p));
 assert.deepEqual(imageFiles.sort(),['assets/carl-clear.png','assets/carl-patina.png','assets/icon-180.png','docs/screenshots/01-completion.png','docs/screenshots/02-settings.png','docs/screenshots/03-water.png','docs/screenshots/04-mobile.png'],'Only the Carl variants, the market icon and the four documentation screenshots may be included; no private uploads or verification dumps');
 const manifest=JSON.parse(await readFile('package.json','utf8'));assert.equal(Object.keys(manifest.dependencies??{}).length,0);
 assert.equal(manifest.icon,'./icon.svg','package manifest must point DSH at the plugin icon');
+assert.equal(manifest.exports?.['.'],'./index.js');assert.equal(manifest.exports?.['./client'],'./client.js');
 assert.equal(manifest.exports?.['./icon'],'./icon.svg','the icon must also be reachable as an export for tools that read it that way');
-const host=await readFile('lib/host.js','utf8');assert.ok(!host.includes('thanks-carl-fixture'));
+assert.equal(manifest.exports?.['./locale/*.json'],'./locale/*.json');
+for(const name of ['zh','en']){const meta=JSON.parse(await readFile(`locale/${name}.json`,'utf8'));assert.ok(meta.meta?.title && meta.meta?.description,`locale/${name}.json needs meta.title and meta.description`);}
+const host=await readFile('index.js','utf8');assert.ok(!host.includes('thanks-carl-fixture'));
 await mkdir('artifacts',{recursive:true});await writeFile('artifacts/distribution-check.json',JSON.stringify({passed:true,filename:result.filename,size:result.size,files:paths,bundledCarlVariants:imageFiles,noFixture:true,runtimeDependencies:0},null,2));
-console.log(`Package boundary passed: ${paths.length} files, ${(result.size/1024).toFixed(1)} KiB archive estimate; only the intended Carl variants, market icon and docs screenshots are included; no private uploads, fixture, runtime state, or runtime dependencies.`);
+console.log(`Package boundary passed: ${paths.length} files, ${(result.size/1024).toFixed(1)} KiB archive estimate; root entries, locale metadata, icon, Carl variants and docs screenshots only; no private uploads, fixture, runtime state, catalog entry, or runtime dependencies.`);

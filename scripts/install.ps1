@@ -8,7 +8,7 @@ $Root=Split-Path $PSScriptRoot -Parent
 $ProfileDir=Join-Path $DshHome "profiles\$Profile"
 $ManifestPath=Join-Path $ProfileDir 'package.json'
 if (!(Test-Path -LiteralPath $ManifestPath)) { throw 'Existing profile required; never create or replace another profile.' }
-if (!(Test-Path (Join-Path $Root 'lib\client.js'))) { throw 'Run npm run build first.' }
+if (!(Test-Path (Join-Path $Root 'client.js'))) { throw 'Run npm run build first.' }
 $Manifest=Get-Content -LiteralPath $ManifestPath -Raw | ConvertFrom-Json -AsHashtable
 $Target=Join-Path $ProfileDir 'node_modules\dsh-thanks-carl'
 if(Test-Path -LiteralPath $Target){

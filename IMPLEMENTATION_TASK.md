@@ -41,7 +41,7 @@ P1 设置：
 - 同时弹出的事件只显示一个，优先级提醒>完成彩蛋>随机路过；可静音、延后、关闭。默认不播音效，不上传聊天记录。
 
 ## 工程和验收
-结构：package.json（dsh.bundle、dsh.client、导出映射）、cordis.patch.yml、lib/host+client 或 src+build、assets、README、测试、可重复安装/卸载脚本、docs/technical-decisions.md、docs/verification.md、真实截图文件。
+结构：package.json（dsh.bundle、dsh.client、导出映射）、cordis.patch.yml、index.js/client.js（包根入口，由 src/ 构建）、assets、README、测试、可重复安装/卸载脚本、docs/technical-decisions.md、docs/verification.md、真实截图文件。
 先写最小原生插件，隔离 profile / 测试端口验证 Host 加载，再做事件/时钟/设置测试。真实 DSH 页面（或隔离 DSH 实例）的截图至少覆盖：原梗图出现、任务完成、喝水/吃饭、设置；不能使用 AI 拼图冒充真实运行截图。若远程 Session 0 无法操作浏览器，说明限制并提供实际截图的可重复命令。
 校验：成功一轮只触发一次；失败/取消不祝贺；新标签/刷新不多次；提醒精准且勿扰有效；页面不挡输入；可关闭/卸载；现有插件功能没变化；不需调用模型。合理增加关键测试，不能只靠人工浏览。
 完成后 git commit 并 push，报告 commit、文件路径、真实验收结果、是否已在原 profile 安装、启动状态、下一步。若确需重启当前 3333 服务，保留运行中环境，明确说明，绝不擅自重启。

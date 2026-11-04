@@ -14,5 +14,5 @@ if(@($Installed.dsh.profile.bundles | Where-Object {$_ -eq 'dsh-thanks-carl'}).C
 & (Join-Path $PSScriptRoot 'uninstall.ps1') -Profile test -DshHome $TestHome
 $After=Get-Content $ManifestPath -Raw | ConvertFrom-Json -AsHashtable
 if($After.dependencies['unrelated-plugin'] -ne '1.2.3' -or $After.dsh.profile.bundles.Count -ne 1 -or $After.dsh.profile.bundles[0] -ne 'unrelated-plugin'){throw 'Unrelated profile content changed'}
-if(!(Test-Path (Join-Path $Root 'lib\client.js'))){throw 'Project target unexpectedly removed'}
+if(!(Test-Path (Join-Path $Root 'client.js'))){throw 'Project target unexpectedly removed'}
 Write-Output 'PASS: install twice, uninstall twice; unrelated dependency/bundle preserved; source untouched.'

@@ -1,6 +1,6 @@
 {
   "name": "dsh-thanks-carl",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "icon": "./icon.svg",
   "description": "Quiet, local-only Carl completion easter eggs and water/meal/rest reminders for DSH",
   "type": "module",
@@ -11,8 +11,8 @@
   "repository": { "type": "git", "url": "git+https://github.com/gongfpp/dsh-thanks-carl.git" },
   "bugs": { "url": "https://github.com/gongfpp/dsh-thanks-carl/issues" },
   "engines": { "dsh": ">=0.2.1-0 <0.3.0-0", "node": ">=22.12" },
-  "exports": { ".": "./lib/host.js", "./client": "./lib/client.js", "./icon": "./icon.svg", "./package.json": "./package.json" },
-  "files": ["lib/", "assets/", "icon.svg", "cordis.patch.yml", "README.md", "CHANGELOG.md", "LICENSE", "docs/technical-decisions.md", "docs/verification.md", "docs/screenshots/", "scripts/install.ps1", "scripts/uninstall.ps1"],
+  "exports": { ".": "./index.js", "./client": "./client.js", "./locale/*.json": "./locale/*.json", "./icon": "./icon.svg", "./package.json": "./package.json" },
+  "files": ["index.js", "client.js", "cordis.patch.yml", "locale/*.json", "icon.svg", "assets/", "README.md", "CHANGELOG.md", "LICENSE", "docs/technical-decisions.md", "docs/verification.md", "docs/screenshots/", "scripts/install.ps1", "scripts/uninstall.ps1"],
   "publishConfig": { "access": "public", "registry": "https://registry.npmjs.org/" },
   "dsh": {
     "bundle": { "patch": "./cordis.patch.yml" },

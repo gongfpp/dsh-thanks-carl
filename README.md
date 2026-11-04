@@ -27,7 +27,7 @@
 dsh plugin --profile web add dsh-thanks-carl
 ```
 
-装好后**重启一次 `dsh web`**，再刷新页面，卡尔就出现了。
+装好后**重启一次 `dsh web`**，再刷新页面，卡尔就出现了。插件列表里的名字会跟随界面语言显示为「谢谢卡尔」或「Thanks Carl」。
 
 需要 DSH Web GUI 0.2.1 或更高版本（不支持 0.3）；页面需在 `https` 或 `localhost` 下打开，浏览器过旧或被禁用本地存储时会自动停用，不影响 DSH 本身。
 

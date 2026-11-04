@@ -2,6 +2,14 @@
 
 验收环境：Mass-PC / Windows 11，日期见各节。开发与测试只在本项目目录内进行；未调用其他模型、AI CLI 或子 Agent。
 
+## 2026-11-04：0.2.2 包结构归位与本地化展示元数据
+
+- 入口从 `lib/host.js` / `lib/client.js` 归位到包根 `index.js` / `client.js`；`lib/` 目录删除，构建脚本、安装/卸载测试脚本与包边界断言全部改为根路径。
+- 新增 `locale/zh.json` 与 `locale/en.json`（`meta.title` / `meta.description`），并导出 `./locale/*.json`；`catalog-entry.yml` 从仓库根移到 `docs/`（仍不随包）。
+- 实际效果：插件列表里的名称由包名变成本地化标题「谢谢卡尔」，浏览器验收脚本的定位也随之更新（原按 `查看 dsh-thanks-carl` 找卡片）。
+- `npm run check`：**37/37 单元测试通过**，包边界 **22 files / 784.5 KiB**（新增断言：根入口、`locale` 元数据、图标、禁止 `docs/catalog-entry` 进包）。
+- 隔离实例浏览器验收：**11/11 组通过、8 张截图、模型请求 0、无页面异常**，release `0.2.2-alpha.2`（commit `d21f653`）。首次两次失败是验收脚本自身问题：夹具请求在旧进程上超时、`插件` 按钮被引导弹窗遮罩拦截；重启隔离实例并让脚本先关闭引导后复跑通过。
+
 ## 2026-11-04：0.2.1 插件图标与面向用户的 README
 
 - 新增 `icon.svg`（64×64 视口，内嵌 144px 卡尔图，圆角裁剪，12 KB）。插件图标在 DSH 侧取自包的 manifest `icon` 字段或 `./icon` 导出（见 `@deepseek-ai/dsh-host-plugin-inventory` 的 `icon` schema 说明），因此 `package.json` 同时声明 `"icon": "./icon.svg"` 与 `exports["./icon"]`，`files` 也包含它。
