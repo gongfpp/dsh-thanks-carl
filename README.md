@@ -8,7 +8,9 @@
 
 插件里自带卡尔照片，装上就能用——不用自己找图，也不用配置。
 
-![任务完成后卡尔从屏幕边缘探头](<docs/screenshots/01-completion.png>)
+![卡尔从屏幕边缘探头，说完「谢谢卡尔」又缩回去](<docs/screenshots/05-demo.gif>)
+
+<sub>7 秒演示：完成彩蛋（气泡上的「预览」是因为用设置里的预览按钮录制）和喝水提醒。</sub>
 
 ## 功能
 
@@ -98,6 +100,13 @@ pwsh -File scripts/test-install.ps1
 - [实际验收记录与截图](<docs/verification.md>)
 - [任务说明](<IMPLEMENTATION_TASK.md>)
 
+## 相关插件
+
+同样是本地小工具，做完这一只之后顺手写的：
+
+- **[每轮扣款语音播报 · dsh-cost-voice](https://github.com/gongfpp/dsh-cost-voice)** — 每轮结束用支付宝或「大白饭」的声音报一句本轮花了多少钱。
+- **[小说摸鱼 · dsh-novel-fish](https://github.com/gongfpp/dsh-novel-fish)** — 在聊天区域下方读本地小说，小说内容不会发给模型。
+
 ## 致谢与声明
 
 内置照片是公开流传的 Carl the Hedgehog 梗图（原始照片为 Pixabay 用户 amayaeguizabal 于 2014 年上传），按原样随插件提供，仅用于这个插件的个人、非商业用途；如权利人提出异议会移除。出处与核实记录见[技术决策与素材出处](<docs/technical-decisions.md>)。
@@ -123,3 +132,5 @@ dsh plugin --profile web add dsh-thanks-carl
 ```
 
 Restart `dsh web` once, then reload the page. Settings live under Plugins → Installed → dsh-thanks-carl → Plugin settings. Requires DSH 0.2.1+ (<0.3) and Node 22.12+ at install time. MIT for the code; the Carl meme photo ships for personal, non-commercial use with this plugin only.
+
+Related local plugins: [dsh-cost-voice](https://github.com/gongfpp/dsh-cost-voice) (per-turn spend voice announcements) and [dsh-novel-fish](https://github.com/gongfpp/dsh-novel-fish) (read local novels under the chat without sending them to the model).
