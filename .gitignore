@@ -8,3 +8,4 @@ dsh-session.json
 scripts/start-dsh-task.ps1
 scripts/check-session.ps1
 scripts/tail-session.ps1
+dev/
