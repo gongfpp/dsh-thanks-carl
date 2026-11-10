@@ -115,8 +115,10 @@ export function createController(env = window) {
     async drankWater() {
       if (await activityAction(() => repo.drankWater(zone()))) {
         clearTimeout(expiry); emit({event:null});
-        const now=Date.now();show({id:`water-ack:${now}`,kind:'pet',priority:1,time:now,expires:now+5000,text:'喝水收到。下一次从现在开始算。'});
+        const now=Date.now();show({id:`water-ack:${now}`,kind:'pet',priority:1,time:now,expires:now+5000,text:'喝水收到。下一次从现在开始算。',acknowledgment:true});
+        return true;
       }
+      return false;
     },
     dismiss() { clearTimeout(expiry); emit({event:null,hidden:true}); },
     async snooze() { const event = view.event; if (event && ['water','meal','rest'].includes(event.kind)) await repo.snooze(event,zone()); clearTimeout(expiry); emit({event:null,hidden:true}); },

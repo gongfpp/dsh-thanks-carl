@@ -55,12 +55,13 @@ function Overlay({controller:c, useSessions}) {
     drag.current=null;setMoving(null);
   }
   async function start(minutes) {if (await c.focus('start',minutes)) setMenu(false);}
+  async function acknowledgeWater() {if (await c.drankWater()) {setMenu(false);menuButton.current?.focus();}}
   return <div ref={stage} className={`tc-stage tc-${pos.edge} ${sleeping ? 'tc-sleeping' : ''}`} data-thanks-carl={visible ? 'overlay' : 'launcher'} style={{top:`clamp(8px, calc(${pos.top*100}dvh - ${height/2}px), calc(100dvh - ${height}px - 8px))`, '--tc-size':`${config.size}px`}}>
     <div className="tc-stack">
       {menu && <div className="tc-menu" role="dialog" aria-label="卡尔快捷菜单">
         <div className="tc-menu-heading"><strong>卡尔陪着你</strong><button ref={menuClose} aria-label="收起菜单" onClick={() => {setMenu(false);menuButton.current?.focus();}}>×</button></div>
         {!v.focus || v.focus.status === 'finished' ? <div className="tc-focus-start"><button disabled={!v.automatic} onClick={() => start(25)}>专注 25 分钟</button><button disabled={!v.automatic} onClick={() => start(45)}>专注 45 分钟</button></div> : <div className="tc-menu-focus"><strong>{v.focus.status === 'paused' ? '已暂停' : '专注中'} · {time}</strong><div className="tc-actions"><button onClick={() => c.focus(v.focus.status === 'paused' ? 'resume' : 'pause')}>{v.focus.status === 'paused' ? '继续专注' : '暂停专注'}</button><button onClick={() => c.focus('end')}>结束专注</button></div></div>}
-        <button disabled={!v.automatic} onClick={() => c.drankWater()}>我喝过水了</button>
+        <button disabled={!v.automatic} onClick={acknowledgeWater}>我喝过水了</button>
         {sleeping ? <button onClick={() => c.setQuiet('off')}>唤醒卡尔 · {new Date(v.quietUntil).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false})} 前安静</button> : <><button disabled={!v.automatic} onClick={() => c.setQuiet('hour')}>安静一小时</button><button disabled={!v.automatic} onClick={() => c.setQuiet('today')}>今天先休息</button></>}
         <button onClick={() => {setMenu(false);c.dismiss();}}>收起卡尔</button>
       </div>}
@@ -72,8 +73,8 @@ function Overlay({controller:c, useSessions}) {
       {event && !menu && <div className="tc-bubble" role="status" aria-live="polite" data-event-kind={event.kind}>
         <button className="tc-close" aria-label="关闭卡尔" onClick={() => c.dismiss()}>×</button>
         {event.preview && <small className="tc-preview">预览</small>}<p>{event.text}</p>
-        <div className="tc-actions"><button className="tc-thanks" onClick={() => c.dismiss()}>{event.kind === 'pet' ? '摸摸收到' : event.kind === 'focus' ? '好，歇一会儿' : thanksText(reminder && event.kind)}</button>
-          {reminder && <button onClick={() => c.snooze()}>稍后 10 分钟</button>}{event.kind === 'water' && <button onClick={() => c.drankWater()}>喝过水了</button>}</div>
+        <div className="tc-actions"><button className="tc-thanks" onClick={() => c.dismiss()}>{event.acknowledgment ? '知道了' : event.kind === 'pet' ? '摸摸收到' : event.kind === 'focus' ? '好，歇一会儿' : thanksText(reminder && event.kind)}</button>
+          {reminder && <button onClick={() => c.snooze()}>稍后 10 分钟</button>}{event.kind === 'water' && <button onClick={acknowledgeWater}>喝过水了</button>}</div>
       </div>}
       {v.error && (menu || v.focus) && <p className="tc-local-error" role="alert">{v.error}</p>}
       <div className="tc-pet-wrap">

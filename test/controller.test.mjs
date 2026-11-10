@@ -26,6 +26,14 @@ test('remote scheduler writes do not erase manual pet responses during quiet tim
   const env=environment(),c=createController(env);t.after(()=>c.dispose());await settle();await c.setQuiet('hour');c.pet();const event=c.getSnapshot().event;
   const storageEvent=new Event('storage');storageEvent.key='thanks-carl.ledger.v1';env.dispatchEvent(storageEvent);assert.equal(c.getSnapshot().event,event);assert.equal(event.kind,'pet');
 });
+test('water acknowledgment reports success only after saving and exposes confirmation',async t=>{
+  const env=environment(),c=createController(env);t.after(()=>c.dispose());await settle();
+  assert.equal(await c.drankWater(),true);const event=c.getSnapshot().event;
+  assert.equal(event.acknowledgment,true);assert.match(event.text,/喝水收到/);
+  assert.ok(JSON.parse(env.localStorage.getItem('thanks-carl.ledger.v1')).schedule.anchors.water>0);
+  c.dismiss();env.localStorage.setItem=()=>{throw Error('blocked');};
+  assert.equal(await c.drankWater(),false);assert.equal(c.getSnapshot().event,null);assert.match(c.getSnapshot().error,/操作未保存/);
+});
 test('blocked local storage produces visible action error instead of pretending to start',async t=>{
   const env=environment();env.localStorage.setItem=()=>{throw Error('blocked');};const c=createController(env);t.after(()=>c.dispose());await settle();
   assert.equal(c.getSnapshot().automatic,false);assert.equal(await c.focus('start',25),false);assert.equal(c.getSnapshot().focus,null);assert.match(c.getSnapshot().error,/操作未保存/);
