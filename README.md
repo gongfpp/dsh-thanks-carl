@@ -21,6 +21,16 @@
 - **不打扰**：默认真静音、气泡只占屏幕边缘一小块、不遮挡点击；跟随系统「减少动态效果」设置。
 - **完全本地**：不联网、不读聊天内容、不发消息、不调用模型。
 
+### 开发分支新增（尚未发布到 npm）
+
+- **摸摸卡尔**：点一下或按 Enter/空格，它会回一句随机短话；快速连点四下会害羞，歇一会儿再摸。
+- **陪你专注**：25 / 45 分钟，支持暂停、继续、结束；刷新页面或切会话不会重置，同一浏览器的标签页共用一个计时。计时中安静陪伴，到期邀请休息，不自动开始下一轮。
+- **就地小菜单**：点击卡尔旁的「···」、右键或长按照片，可以标记「我喝过水了」、安静一小时、今天先休息或唤醒卡尔。喝水会从现在重新计时；今天休息到本地午夜。
+
+事件彩蛋收起后留下一个小头像入口，点它即可打开菜单；不想显示任何入口，关闭「启用卡尔」。免扰只抑制自动提醒和完成彩蛋，手动互动仍可用。专注结束后若已离开超过两分钟，只保留完成状态，不补弹气泡；关闭页面期间不会发系统通知。
+
+以上位于 `feat/carl-companion` 分支，下面的 npm 安装命令目前仍安装已发布的 0.2.3。文首 GIF 也是 0.2.3 的演示。
+
 ## 安装
 
 在 DSH 的插件市场里装，或者用命令行：
@@ -126,6 +136,8 @@ A quiet Carl the Hedgehog easter egg for [DeepSeek Harness](https://github.com/d
 - **Bundled photo**: the original patina version, a clearer variant of the same photo, or upload your own and restore the original anytime.
 - **Local reminders**: water every 60 minutes, meals at 12:00 and 18:00, work breaks off by default, quiet hours 00:00–08:00, snooze 10 minutes.
 - **Fully local**: no network, no telemetry, never reads your conversation, no model calls.
+
+Unreleased on `feat/carl-companion`: pet reactions, a shared 25/45-minute focus timer with pause/resume, and a local quick menu (water acknowledgment, one-hour/today quiet, wake). Click the small avatar to open the menu, or use the pet's ··· button, right-click, or long press. npm still serves 0.2.3; the GIF above shows that published version.
 
 ```powershell
 dsh plugin --profile web add dsh-thanks-carl

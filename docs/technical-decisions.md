@@ -48,6 +48,16 @@
 2. 入口固定在包根：`index.js`（Host ESM，由 `src/host.mjs` 构建）与 `client.js`（客户端 factory，由 `src/client.jsx` 构建）。`src/` 只放源码，`lib/` 不再作为发布目录；构建产物是根目录文件，安装脚本与包边界检查都按根路径断言。
 3. `catalog-entry.yml` 是仓库投稿用的文件，放在 `docs/` 下并明确不进 `files`；包边界检查新增断言，禁止把 `docs/catalog-entry` 打进包。
 
+## 轻量陪伴（2026-11-10，未发布）
+
+- 参考了 [PC2005-cloud/dsh-pet](https://github.com/PC2005-cloud/dsh-pet)、[nolodjska/dsh-dafeiyu](https://github.com/nolodjska/dsh-dafeiyu)、[theskywilldawn/dsh-stamina-pet](https://github.com/theskywilldawn/dsh-stamina-pet) 的公开 README。前者涵盖动画/物理拖拽、多宠物、语音聊天、工作状态、睡觉与菜单；第二个侧重真实 Agent 阶段、待办和等待确认；第三个有连戳/揉头与上下文体力。以上是项目自述，不是本机安装验收结果。
+- 本轮只借鉴点按反馈、就地菜单和休息免扰。没有复制代码、动画或形象：dsh-pet 的形象许可为 CC BY-NC-SA 4.0，stamina-pet 整体为 AGPL；卡尔继续使用自己的原照片与独立实现。没有增加余额、聊天/语音、物理引擎、桌面窗口或模型依赖。
+- `src/companion.mjs` 为纯策略；专注只允许 25/45 分钟，运行保存 deadline，暂停保存 remaining。恢复按新时间计算截止，不靠递减内存计数；终态存 finishedAt，超过两分钟不弹完成。操作和结算复用 `thanks-carl.scheduler.v1` Web Lock + 原有 ledger，同浏览器标签共享，不跨设备。
+- 专注运行时消费但不展示普通提醒与完成彩蛋；静音一小时/到本地午夜也消费自动事件，包括专注结束气泡。结束后不补发，仍保留完成状态；手动摸摸和预览不受免扰影响。暂停专注时普通提醒恢复。
+- 摸摸是本地短句，避免紧邻重复；1.8 秒内连摸四次害羞，2.5 秒冷却，不读取聊天或计费。气泡仍遵守提醒优先，摸摸不能覆盖重要提醒。
+- 菜单只在自有 overlay 内渲染；按钮/右键/550ms 长按可开，拖动超过 5px 取消长按，取消指针和卸载清理计时器。Escape 关闭并归还按钮焦点，外部点击收起；用自有节点 ResizeObserver 限制屏内位置，不窥探宿主 DOM。彩蛋收起后保留 40px 入口，总开关完全隐藏。
+- “喝过水了”只重置 water anchor、取消 water snooze，不把吃饭/休息事件顺手消费；新状态不需要 Host route 或改动用户服务。
+
 ## 隔离边界
 
 所有新增运行配置、缓存、测试工作区在本项目 .runtime 内，使用独立 DSH_HOME/profile 和 loopback 测试端口，禁止继承真实凭据、真实会话。不启动其他 AI、不做实际 LLM 请求。原 3333 PID 17956 作为前后检查基准，绝不 kill/restart。隔离 fixture 将明确标注无模型的生命周期测试，截图不是伪造模型成功结果。

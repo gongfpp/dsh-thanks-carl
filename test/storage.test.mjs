@@ -47,6 +47,39 @@ test('ledger structural corruption and settings changes cannot replay a meal',as
   f.values.set(LEDGER_KEY,JSON.stringify({seen:{},schedule:{zone:'Z',last:f.t,anchors:{water:f.t,rest:f.t},consumed:{'meal:Z:2026-11-01:12:00':f.t},snooze:null}}));
   await r.resetTimers('Z');assert.ok(JSON.parse(f.values.get(LEDGER_KEY)).schedule.consumed['meal:Z:2026-11-01:12:00']);
 });
+test('focus is shared, reload-safe, and completion is claimed once by two tabs',async()=>{
+  const f=fixture(),a=f.repo(),b=f.repo();a.update({water:false,meals:false,dnd:false});
+  await Promise.all([a.focus('start',25),b.focus('start',45)]);
+  assert.equal(a.activity().focus.minutes,25);assert.deepEqual(f.repo().activity(),a.activity());
+  f.advance(5*60_000);await b.focus('pause');const remaining=a.activity().focus.remaining;
+  f.advance(10*60_000);assert.equal(f.repo().activity().focus.remaining,remaining);
+  await a.focus('resume');f.advance(remaining);
+  const events=await Promise.all([a.tick('Z'),b.tick('Z')]);assert.equal(events.filter(Boolean).length,1);assert.equal(events.find(Boolean).kind,'focus');
+  assert.equal(f.repo().activity().focus.status,'finished');assert.equal(await f.repo().tick('Z'),null);
+  await b.focus('end');assert.equal(a.activity().focus,null);
+});
+test('focus and quiet suppress automatic events without replay; quiet also suppresses focus end',async()=>{
+  const f=fixture(),r=f.repo();r.update({always:true,waterMinutes:1,meals:false,dnd:false});await r.tick('Z');await r.focus('start',25);
+  f.advance(60_000);assert.equal(await r.tick('Z'),null);assert.equal(await r.claimCompletion({id:'focus-round',time:f.t}),false);
+  await r.focus('end');assert.equal(await r.claimCompletion({id:'focus-round',time:f.t}),false);
+  await r.setQuiet('hour');assert.equal(f.repo().activity().quietUntil,f.t+60*60_000);
+  assert.equal(await r.claimCompletion({id:'quiet-round',time:f.t}),false);await r.focus('start',25);
+  f.advance(25*60_000);assert.equal(await r.tick('Z'),null);assert.equal(r.activity().focus.status,'finished');
+  await r.setQuiet('off');assert.equal(await r.tick('Z'),null);assert.equal(await r.claimCompletion({id:'quiet-round',time:f.t}),false);
+});
+test('water acknowledgement resets only water and clears its snooze without consuming meals',async()=>{
+  const f=fixture(),r=f.repo();r.update({waterMinutes:1,meals:true,mealTimes:['10:01'],dnd:false});await r.tick('Z');
+  f.advance(30_000);await r.snooze({id:'water:ack',kind:'water'},'Z');await r.drankWater('Z');
+  const schedule=JSON.parse(f.values.get(LEDGER_KEY)).schedule;assert.equal(schedule.anchors.water,f.t);assert.equal(schedule.snooze,null);
+  f.advance(30_000);assert.equal((await r.tick('Z')).kind,'meal');
+  f.advance(30_000);assert.equal((await r.tick('Z')).kind,'water');
+});
+test('focus stays finished without overdue popup, and unavailable storage cannot start timers',async()=>{
+  const f=fixture(),r=f.repo();r.update({water:false,meals:false,dnd:false});await r.focus('start',25);f.advance(40*60_000);
+  assert.equal(await r.tick('Z'),null);assert.equal(r.activity().focus.status,'finished');
+  assert.equal(await createRepository(f.storage,null).focus('start',25),null);
+  const bad=createRepository({getItem(){return null;},setItem(){throw Error();}},f.locks);assert.equal(await bad.focus('start',25),null);
+});
 test('self-chosen images accept raster data only; SVG and external URLs rejected',()=>{
   assert.equal(!!validImages({clear:'https://example.com/a.png',patina:'data:image/png;base64,AAAA'}),false);
   assert.equal(!!validImages({clear:'data:image/svg+xml;base64,AAAA',patina:'data:image/png;base64,AAAA'}),false);

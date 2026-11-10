@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { createController } from './controller.mjs';
 import { thanksText } from './core.mjs';
+import { focusRemaining } from './companion.mjs';
 import { importImage, validImages } from './images.mjs';
 import css from './style.css';
 import placeholder from '../assets/choose-photo.svg';
@@ -11,49 +12,77 @@ export const name = 'thanks-carl';
 export const inject = ['slots'];
 const useView = c => useSyncExternalStore(c.subscribe,c.getSnapshot);
 function Overlay({controller:c, useSessions}) {
-  const v = useView(c), config = v.config;
-  const current = useSessions(s => Object.values(s.byId).find(row => (row?.retainedBy?.mainView ?? 0) > 0)?.id);
+  const v=useView(c), config=v.config;
+  const current=useSessions(s => Object.values(s.byId).find(row => (row?.retainedBy?.mainView ?? 0) > 0)?.id);
   useEffect(() => { c.select(current); },[c,current]);
-  const drag = useRef(null), pet = useRef(null), nodTimer = useRef(null), [moving,setMoving] = useState(null), [nodding,setNodding] = useState(false);
-  useEffect(() => () => clearTimeout(nodTimer.current),[]);
-  const event = v.event, reminder = event && ['water','meal','rest'].includes(event.kind);
-  const visible = config.enabled && (event || (config.mode === 'resident' && !v.hidden));
-  if (!visible) return null;
-  const image = (validImages(v.images) ? v.images : builtInImages)[config.quality];
+  const drag=useRef(null), hold=useRef(null), stage=useRef(null), menuButton=useRef(null), menuClose=useRef(null);
+  const [moving,setMoving]=useState(null), [menu,setMenu]=useState(false), [height,setHeight]=useState(100);
+  const event=v.event, reminder=event && ['water','meal','rest'].includes(event.kind), sleeping=v.quietUntil > v.now;
+  const visible=config.enabled && (menu || event || v.focus || (config.mode === 'resident' && !v.hidden));
+  useEffect(() => () => clearTimeout(hold.current),[]);
+  useEffect(() => {
+    if (!config.enabled) setMenu(false);
+    const element=stage.current;if (!element) return;
+    const observer=new ResizeObserver(() => setHeight(element.getBoundingClientRect().height));observer.observe(element);return () => observer.disconnect();
+  },[visible,config.enabled]);
+  useEffect(() => {
+    if (!menu) return;
+    menuClose.current?.focus();
+    const outside=e => {if (!stage.current?.contains(e.target)) setMenu(false);};
+    const key=e => {if (e.key === 'Escape') {e.preventDefault();e.stopPropagation();setMenu(false);menuButton.current?.focus();}};
+    document.addEventListener('pointerdown',outside);document.addEventListener('keydown',key,true);
+    return () => {document.removeEventListener('pointerdown',outside);document.removeEventListener('keydown',key,true);};
+  },[menu]);
+  if (!config.enabled) return null;
+  const image=(validImages(v.images) ? v.images : builtInImages)[config.quality], pos=moving ?? config;
+  const open=() => setMenu(true);
+  const remaining=Math.ceil(focusRemaining(v.focus,v.now)/1000), time=`${String(Math.floor(remaining/60)).padStart(2,'0')}:${String(remaining%60).padStart(2,'0')}`;
   function pointerDown(e) {
     if (e.button !== 0) return;
-    e.currentTarget.setPointerCapture(e.pointerId);
-    drag.current = {x:e.clientX,y:e.clientY,moved:false};
+    e.currentTarget.setPointerCapture(e.pointerId);drag.current={x:e.clientX,y:e.clientY,moved:false,held:false};
+    hold.current=setTimeout(() => {if (drag.current && !drag.current.moved) {drag.current.held=true;open();}},550);
   }
   function pointerMove(e) {
     if (!drag.current) return;
     if (Math.hypot(e.clientX-drag.current.x,e.clientY-drag.current.y) < 5 && !drag.current.moved) return;
-    drag.current.moved = true;
-    setMoving({edge:e.clientX < innerWidth/2 ? 'left' : 'right',top:Math.max(0.08,Math.min(0.7,e.clientY/innerHeight))});
+    clearTimeout(hold.current);drag.current.moved=true;
+    setMoving({edge:e.clientX < innerWidth/2 ? 'left' : 'right',top:Math.max(0.08,Math.min(0.85,e.clientY/innerHeight))});
   }
   function pointerUp(e) {
-    if (!drag.current) return;
-    if (drag.current.moved) {
-      const edge = e.clientX < innerWidth/2 ? 'left' : 'right', top = Math.max(0.08,Math.min(0.7,e.clientY/innerHeight));
-      void c.update({edge,top});
-    } else { clearTimeout(nodTimer.current); setNodding(true); nodTimer.current = setTimeout(() => setNodding(false),500); }
-    drag.current = null; setMoving(null);
+    clearTimeout(hold.current);if (!drag.current) return;
+    if (drag.current.moved) void c.update({edge:e.clientX < innerWidth/2 ? 'left' : 'right',top:Math.max(0.08,Math.min(0.85,e.clientY/innerHeight))});
+    else if (!drag.current.held) c.pet();
+    drag.current=null;setMoving(null);
   }
-  const pos = moving ?? config;
-  return <div className={`tc-stage tc-${pos.edge}`} data-thanks-carl="overlay" style={{top:`${Math.min(70,pos.top*100)}%`, '--tc-size':`${config.size}px`}}>
+  async function start(minutes) {if (await c.focus('start',minutes)) setMenu(false);}
+  return <div ref={stage} className={`tc-stage tc-${pos.edge} ${sleeping ? 'tc-sleeping' : ''}`} data-thanks-carl={visible ? 'overlay' : 'launcher'} style={{top:`clamp(8px, calc(${pos.top*100}dvh - ${height/2}px), calc(100dvh - ${height}px - 8px))`, '--tc-size':`${config.size}px`}}>
     <div className="tc-stack">
-      {event && <div className="tc-bubble" role="status" aria-live="polite" data-event-kind={event.kind}>
-        <button className="tc-close" aria-label="关闭卡尔" onClick={() => c.dismiss()}>×</button>
-        {event.preview && <small className="tc-preview">预览</small>}
-        <p>{event.text}</p>
-        <div className="tc-actions"><button className="tc-thanks" onClick={() => c.dismiss()}>{thanksText(reminder && event.kind)}</button>
-          {reminder && <button onClick={() => c.snooze()}>稍后 10 分钟</button>}</div>
+      {menu && <div className="tc-menu" role="dialog" aria-label="卡尔快捷菜单">
+        <div className="tc-menu-heading"><strong>卡尔陪着你</strong><button ref={menuClose} aria-label="收起菜单" onClick={() => {setMenu(false);menuButton.current?.focus();}}>×</button></div>
+        {!v.focus || v.focus.status === 'finished' ? <div className="tc-focus-start"><button disabled={!v.automatic} onClick={() => start(25)}>专注 25 分钟</button><button disabled={!v.automatic} onClick={() => start(45)}>专注 45 分钟</button></div> : <div className="tc-menu-focus"><strong>{v.focus.status === 'paused' ? '已暂停' : '专注中'} · {time}</strong><div className="tc-actions"><button onClick={() => c.focus(v.focus.status === 'paused' ? 'resume' : 'pause')}>{v.focus.status === 'paused' ? '继续专注' : '暂停专注'}</button><button onClick={() => c.focus('end')}>结束专注</button></div></div>}
+        <button disabled={!v.automatic} onClick={() => c.drankWater()}>我喝过水了</button>
+        {sleeping ? <button onClick={() => c.setQuiet('off')}>唤醒卡尔 · {new Date(v.quietUntil).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false})} 前安静</button> : <><button disabled={!v.automatic} onClick={() => c.setQuiet('hour')}>安静一小时</button><button disabled={!v.automatic} onClick={() => c.setQuiet('today')}>今天先休息</button></>}
+        <button onClick={() => {setMenu(false);c.dismiss();}}>收起卡尔</button>
       </div>}
+      {v.focus && !menu && <div className="tc-focus-chip" data-focus-status={v.focus.status}>
+        <button aria-label="查看专注计时" onClick={open}>{v.focus.status === 'finished' ? '专注完成 · 休息一下' : `${v.focus.status === 'paused' ? '已暂停' : '专注'} ${time}`}</button>
+        {v.focus.status !== 'finished' && <button aria-label={v.focus.status === 'paused' ? '继续专注' : '暂停专注'} onClick={() => c.focus(v.focus.status === 'paused' ? 'resume' : 'pause')}>{v.focus.status === 'paused' ? '▶' : 'Ⅱ'}</button>}
+        <button aria-label="结束专注" onClick={() => c.focus('end')}>×</button>
+      </div>}
+      {event && !menu && <div className="tc-bubble" role="status" aria-live="polite" data-event-kind={event.kind}>
+        <button className="tc-close" aria-label="关闭卡尔" onClick={() => c.dismiss()}>×</button>
+        {event.preview && <small className="tc-preview">预览</small>}<p>{event.text}</p>
+        <div className="tc-actions"><button className="tc-thanks" onClick={() => c.dismiss()}>{event.kind === 'pet' ? '摸摸收到' : event.kind === 'focus' ? '好，歇一会儿' : thanksText(reminder && event.kind)}</button>
+          {reminder && <button onClick={() => c.snooze()}>稍后 10 分钟</button>}{event.kind === 'water' && <button onClick={() => c.drankWater()}>喝过水了</button>}</div>
+      </div>}
+      {v.error && (menu || v.focus) && <p className="tc-local-error" role="alert">{v.error}</p>}
       <div className="tc-pet-wrap">
-        {!event && <button className="tc-close tc-resident-close" aria-label="关闭卡尔" onClick={() => c.dismiss()}>×</button>}
-        <button ref={pet} className={`tc-pet ${nodding ? 'tc-nod' : ''}`} aria-label="卡尔：拖动停靠，点按互动" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={() => {drag.current=null;setMoving(null);}}>
-          <img src={image} draggable="false" alt={validImages(v.images) ? '自定义 Carl 照片' : '内置 Carl 原版梗图'} />
-        </button>
+        {visible ? <>
+          <button ref={menuButton} className="tc-menu-toggle" aria-label="卡尔菜单" aria-expanded={menu} aria-haspopup="dialog" onClick={() => setMenu(!menu)}>···</button>
+          <button className={`tc-pet tc-${v.motion}`} aria-label="卡尔：拖动停靠，点按互动" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={() => {clearTimeout(hold.current);drag.current=null;setMoving(null);}} onClick={e => {if (e.detail === 0) c.pet();}} onContextMenu={e => {e.preventDefault();clearTimeout(hold.current);open();}}>
+            <img src={image} draggable="false" alt={validImages(v.images) ? '自定义 Carl 照片' : '内置 Carl 原版梗图'} />
+          </button>{sleeping && <span className="tc-sleep-mark" aria-label="卡尔休息中">z Z</span>}
+        </> : <button ref={menuButton} className="tc-launcher" aria-label="召唤卡尔，打开快捷菜单" title="召唤卡尔" onClick={open}><img src={image} alt="" draggable="false"/></button>}
       </div>
     </div>
   </div>;
