@@ -120,6 +120,8 @@ export function createController(env = window) {
       }
       return false;
     },
+    summon() { emit({hidden:false}); },
+    closeBubble() { clearTimeout(expiry); emit({event:null}); },
     dismiss() { clearTimeout(expiry); emit({event:null,hidden:true}); },
     async snooze() { const event = view.event; if (event && ['water','meal','rest'].includes(event.kind)) await repo.snooze(event,zone()); clearTimeout(expiry); emit({event:null,hidden:true}); },
     dispose() { stopped = true; generation++; clearTimeout(expiry); clearTimeout(motionTimer); clearInterval(timer); clearInterval(clockTimer); env.removeEventListener('storage',reload); env.document.removeEventListener('visibilitychange',tick); listeners.clear(); },

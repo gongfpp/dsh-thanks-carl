@@ -19,7 +19,8 @@ var DEFAULTS = Object.freeze({
   dndStart: "00:00",
   dndEnd: "08:00",
   edge: "right",
-  top: 0.48
+  top: 0.48,
+  activity: "still"
 });
 var rejectedReasons = /* @__PURE__ */ new Set(["error", "aborted", "blocked", "max-tokens", "interrupted"]);
 var CompletionTracker = class {

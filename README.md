@@ -1,5 +1,7 @@
 # 谢谢卡尔 · Thanks Carl
 
+<img src="icon.svg" width="48" height="48" alt="谢谢卡尔插件图标" />
+
 [![npm](https://img.shields.io/npm/v/dsh-thanks-carl.svg)](https://www.npmjs.com/package/dsh-thanks-carl)
 [![license](https://img.shields.io/npm/l/dsh-thanks-carl.svg)](LICENSE)
 [![dsh](https://img.shields.io/badge/dsh-0.2.1%2B-4D6BFE)](https://github.com/deepseek-ai/deepseek-harness)
@@ -21,15 +23,21 @@
 - **不打扰**：默认真静音、气泡只占屏幕边缘一小块、不遮挡点击；跟随系统「减少动态效果」设置。
 - **完全本地**：不联网、不读聊天内容、不发消息、不调用模型。
 
-### 开发分支新增（尚未发布到 npm）
+### 源码版新增（尚未发布到 npm）
 
 - **摸摸卡尔**：点一下或按 Enter/空格，它会回一句随机短话；快速连点四下会害羞，歇一会儿再摸。
 - **陪你专注**：25 / 45 分钟，支持暂停、继续、结束；刷新页面或切会话不会重置，同一浏览器的标签页共用一个计时。计时中安静陪伴，到期邀请休息，不自动开始下一轮。
 - **就地小菜单**：点击卡尔旁的「···」、右键或长按照片，可以标记「我喝过水了」、安静一小时、今天先休息或唤醒卡尔。喝水会从现在重新计时；今天休息到本地午夜。
 
-事件彩蛋收起后留下一个小头像入口，点它即可打开菜单；不想显示任何入口，关闭「启用卡尔」。免扰只抑制自动提醒和完成彩蛋，手动互动仍可用。专注结束后若已离开超过两分钟，只保留完成状态，不补弹气泡；关闭页面期间不会发系统通知。
+- **关菜单不等于收起**：菜单右上角 ×、点空白或 Esc 只关菜单，手动唤出的卡尔继续陪着你；气泡的 × 只关闭提示。
+- **回小窝**：菜单里的「回小窝」让卡尔缩回边缘，只留一个小头像，点它再出来。不会停止专注计时或清除免扰；下一次正常到期的提醒仍可叫它出来。不想显示任何入口，关闭「启用卡尔」。手动召唤/回窝只作用于当前标签页，刷新后回到所选出现模式。
+- **可选边缘闲逛**：菜单或设置里把「活动方式」从默认的「乖乖待着」切到「自己逛逛」。每隔 20–40 秒在停靠位置上下 48px 内慢慢挪几步；拖动时跟手，松手回边缘轻轻停稳。保留原照片，不是新的逐帧走路动画。
 
-以上位于 `feat/carl-companion` 分支，下面的 npm 安装命令目前仍安装已发布的 0.2.3。文首 GIF 也是 0.2.3 的演示。
+菜单、提示气泡打开，鼠标/键盘正在操作卡尔，专注、睡觉、勿扰时段、页面后台或系统要求减少动态效果时，都暂停闲逛。免扰只抑制自动提醒和完成彩蛋，手动互动仍可用。专注结束后若已离开超过两分钟，只保留完成状态，不补弹气泡；关闭页面期间不会发系统通知。
+
+以下菜单截图来自源码版的真实隔离运行；下面的 npm 安装命令目前仍安装已发布的 0.2.3，文首 GIF 也是 0.2.3 的演示。
+
+![源码版卡尔快捷菜单：专注、喝水、休息、活动方式与回小窝](<docs/companion-menu.png>)
 
 ## 安装
 
@@ -137,7 +145,7 @@ A quiet Carl the Hedgehog easter egg for [DeepSeek Harness](https://github.com/d
 - **Local reminders**: water every 60 minutes, meals at 12:00 and 18:00, work breaks off by default, quiet hours 00:00–08:00, snooze 10 minutes.
 - **Fully local**: no network, no telemetry, never reads your conversation, no model calls.
 
-Unreleased on `feat/carl-companion`: pet reactions, a shared 25/45-minute focus timer with pause/resume, and a local quick menu (water acknowledgment, one-hour/today quiet, wake). Click the small avatar to open the menu, or use the pet's ··· button, right-click, or long press. npm still serves 0.2.3; the GIF above shows that published version.
+Unreleased in source: pet reactions, a shared 25/45-minute focus timer with pause/resume, and a local quick menu (water acknowledgment, one-hour/today quiet, wake). Closing the menu keeps a manually summoned Carl visible; “回小窝” returns it to a small avatar without ending focus. Optional edge wandering is off by default and pauses during interaction, focus, sleep, background use or reduced motion. Drag follows your pointer and docks gently; all animation uses the original photograph. npm still serves 0.2.3; the GIF above shows that published version.
 
 ```powershell
 dsh plugin --profile web add dsh-thanks-carl

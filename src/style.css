@@ -60,6 +60,16 @@ to{opacity:1;translate:0 0}
 .tc-menu-heading{display:flex;justify-content:space-between;align-items:center;padding:0 4px 7px}
 .tc-menu button{font:13px/1.5 system-ui,sans-serif;color:inherit;border:0;background:transparent;border-radius:7px;min-height:36px;padding:7px 9px;cursor:pointer;text-align:left}
 .tc-menu>button{display:block;width:100%}
+.tc-menu-activity{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 9px;border-top:1px solid var(--tc-line);margin-top:5px;font-size:12px}
+.tc-menu-activity select{max-width:60%;font:inherit;color:var(--tc-ink);background:var(--tc-hover);border:1px solid var(--tc-line);border-radius:7px;padding:5px;min-height:32px}
+.tc-right{--tc-home-x:64px}
+.tc-left{--tc-home-x:-64px}
+.tc-home-leaving .tc-pet-wrap{pointer-events:none;animation:tc-home-out .24s ease-in forwards}
+.tc-home-entering .tc-pet-wrap{animation:tc-home-in .28s ease-out}
+.tc-dragging .tc-pet{cursor:grabbing}
+@keyframes tc-home-out{to{transform:translateX(var(--tc-home-x)) scale(.45);opacity:0}}
+@keyframes tc-home-in{from{transform:translateX(var(--tc-home-x)) scale(.45);opacity:0}to{transform:none;opacity:1}}
+@media(prefers-reduced-motion:reduce){.tc-home-leaving .tc-pet-wrap,.tc-home-entering .tc-pet-wrap{animation:none!important}}
 .tc-menu button:hover,.tc-menu button:focus-visible{background:var(--tc-hover)}
 .tc-menu button:disabled{opacity:.45;cursor:not-allowed}
 .tc-menu-heading button{min-width:32px;text-align:center;font-size:20px;padding:0}

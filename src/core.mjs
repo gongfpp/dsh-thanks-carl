@@ -5,7 +5,7 @@ export const DEFAULTS = Object.freeze({
   mode: 'easter', quality: 'patina', size: 100, sound: false,
   water: true, waterMinutes: 60, meals: true, mealTimes: ['12:00', '18:00'],
   rest: false, restMinutes: 120, dnd: true, dndStart: '00:00', dndEnd: '08:00',
-  edge: 'right', top: 0.48,
+  edge: 'right', top: 0.48, activity: 'still',
 });
 const clock = /^([01]\d|2[0-3]):[0-5]\d$/;
 export function normalize(raw = {}) {
@@ -15,7 +15,7 @@ export function normalize(raw = {}) {
   for (const [k,min,max] of [['probability',0,1],['cooldown',0,1440],['size',76,128],['waterMinutes',1,1440],['restMinutes',1,1440],['top',0,1]]) {
     if (Number.isFinite(raw[k])) c[k] = Math.max(min, Math.min(max, raw[k]));
   }
-  for (const [k,values] of Object.entries({ mode:['easter','resident'], quality:['patina','clear'], edge:['left','right'] })) if (values.includes(raw[k])) c[k] = raw[k];
+  for (const [k,values] of Object.entries({ mode:['easter','resident'], quality:['patina','clear'], edge:['left','right'], activity:['still','wander'] })) if (values.includes(raw[k])) c[k] = raw[k];
   for (const k of ['dndStart','dndEnd']) if (clock.test(raw[k])) c[k] = raw[k];
   if (Array.isArray(raw.mealTimes)) c.mealTimes = [...new Set(raw.mealTimes.filter(t => typeof t === 'string' && clock.test(t)))].sort().slice(0,12);
   return c;

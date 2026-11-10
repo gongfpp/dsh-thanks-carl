@@ -34,6 +34,13 @@ test('water acknowledgment reports success only after saving and exposes confirm
   c.dismiss();env.localStorage.setItem=()=>{throw Error('blocked');};
   assert.equal(await c.drankWater(),false);assert.equal(c.getSnapshot().event,null);assert.match(c.getSnapshot().error,/操作未保存/);
 });
+test('closing a bubble, returning home and summoning are distinct and preserve focus/quiet',async t=>{
+  const env=environment(),c=createController(env);t.after(()=>c.dispose());await settle();
+  await c.focus('start',25);await c.setQuiet('hour');const {focus,quietUntil}=c.getSnapshot();
+  c.pet();c.closeBubble();assert.equal(c.getSnapshot().event,null);assert.equal(c.getSnapshot().hidden,false);
+  c.dismiss();assert.equal(c.getSnapshot().hidden,true);assert.deepEqual(c.getSnapshot().focus,focus);assert.equal(c.getSnapshot().quietUntil,quietUntil);
+  c.summon();assert.equal(c.getSnapshot().hidden,false);assert.equal(c.getSnapshot().event,null);assert.deepEqual(c.getSnapshot().focus,focus);assert.equal(c.getSnapshot().quietUntil,quietUntil);
+});
 test('blocked local storage produces visible action error instead of pretending to start',async t=>{
   const env=environment();env.localStorage.setItem=()=>{throw Error('blocked');};const c=createController(env);t.after(()=>c.dispose());await settle();
   assert.equal(c.getSnapshot().automatic,false);assert.equal(await c.focus('start',25),false);assert.equal(c.getSnapshot().focus,null);assert.match(c.getSnapshot().error,/操作未保存/);
