@@ -6,28 +6,28 @@
 [![license](https://img.shields.io/npm/l/dsh-thanks-carl.svg)](LICENSE)
 [![dsh](https://img.shields.io/badge/dsh-0.2.1%2B-4D6BFE)](https://github.com/deepseek-ai/deepseek-harness)
 
-每轮任务做完，让那只刺猬从屏幕边缘探头，跟你说一句「谢谢卡尔」；它也会提醒你喝水、吃饭、起来动一动。
+让卡尔陪你工作：摸摸会回应，一起专注 25 / 45 分钟，偶尔沿屏幕边缘挪一挪；也保留任务完成彩蛋和喝水、吃饭、休息提醒。
 
-插件里自带卡尔照片，装上就能用——不用自己找图，也不用配置。
+插件里自带卡尔照片，装上就能用——不用自己找图，也不用配置模型。
 
-![卡尔从屏幕边缘探头，说完「谢谢卡尔」又缩回去](<docs/screenshots/05-demo.gif>)
+![卡尔 0.3.0 的摸摸回应、快捷菜单、专注计时和回小窝真实操作](<docs/screenshots/06-companion.gif>)
 
-<sub>7 秒演示：完成彩蛋（气泡上的「预览」是因为用设置里的预览按钮录制）和喝水提醒。</sub>
+<sub>7 秒真实操作演示：摸摸、打开菜单、开始专注、回小窝。使用隔离 DSH 实例录制，不是模拟界面。</sub>
 
 ## 功能
 
-- **任务完成的彩蛋**：一轮真的做完了，卡尔才有机会探头；默认 15% 概率、间隔至少 30 分钟，出现时点「谢谢卡尔」或关掉气泡它就走了。失败、取消、中断的轮次它不会来道谢。
-- **两种模式**：事件彩蛋（偶尔出现）或常驻桌宠（一直在，点一下有反应）。常驻模式可以关掉「完成彩蛋」只留桌宠。
-- **自带照片**：原版包浆图，也可以换成同一张照片的清晰版；想用自己的图就上传一张，随时一键恢复卡尔原图。
-- **本地提醒**：喝水（默认每 60 分钟）、吃饭（默认 12:00、18:00）、工作间歇（默认关）；提醒带「稍后 10 分钟」。默认 00:00–08:00 勿扰。
-- **不打扰**：默认真静音、气泡只占屏幕边缘一小块、不遮挡点击；跟随系统「减少动态效果」设置。
-- **完全本地**：不联网、不读聊天内容、不发消息、不调用模型。
-
-### 源码版新增（尚未发布到 npm）
-
 - **摸摸卡尔**：点一下或按 Enter/空格，它会回一句随机短话；快速连点四下会害羞，歇一会儿再摸。
-- **陪你专注**：25 / 45 分钟，支持暂停、继续、结束；刷新页面或切会话不会重置，同一浏览器的标签页共用一个计时。计时中安静陪伴，到期邀请休息，不自动开始下一轮。
+- **陪你专注**：25 / 45 分钟，支持暂停、继续、结束；刷新页面或切会话不会重置，同一浏览器的标签页共用一个计时。到期邀请休息，不自动开始下一轮。
 - **就地小菜单**：点击卡尔旁的「···」、右键或长按照片，可以标记「我喝过水了」、安静一小时、今天先休息或唤醒卡尔。喝水会从现在重新计时；今天休息到本地午夜。
+- **任务完成的彩蛋**：一轮真的做完了，卡尔才有机会探头；默认 15% 概率、间隔至少 30 分钟。失败、取消、中断的轮次不会来道谢。
+- **两种模式**：事件彩蛋（偶尔出现）或常驻桌宠（一直陪着你）。常驻模式可以关掉「完成彩蛋」只留桌宠。
+- **自带照片**：原版包浆图，也可以换成同一张照片的清晰版；想用自己的图就上传一张，随时一键恢复卡尔原图。
+- **本地提醒**：喝水默认每 60 分钟，吃饭默认 12:00、18:00，工作间歇默认关；可以「稍后 10 分钟」。默认 00:00–08:00 勿扰。
+- **完全本地**：不联网、不读聊天内容、不发消息、不调用模型；提示音默认关闭。
+
+![卡尔快捷菜单：专注、喝水、休息、活动方式与回小窝](<docs/screenshots/07-menu.png>)
+
+### 收起、睡觉和活动
 
 - **关菜单不等于收起**：菜单右上角 ×、点空白或 Esc 只关菜单，手动唤出的卡尔继续陪着你；气泡的 × 只关闭提示。
 - **回小窝**：菜单里的「回小窝」让卡尔缩回边缘，只留一个小头像，点它再出来。不会停止专注计时或清除免扰；下一次正常到期的提醒仍可叫它出来。不想显示任何入口，关闭「启用卡尔」。手动召唤/回窝只作用于当前标签页，刷新后回到所选出现模式。
@@ -35,21 +35,17 @@
 
 菜单、提示气泡打开，鼠标/键盘正在操作卡尔，专注、睡觉、勿扰时段、页面后台或系统要求减少动态效果时，都暂停闲逛。免扰只抑制自动提醒和完成彩蛋，手动互动仍可用。专注结束后若已离开超过两分钟，只保留完成状态，不补弹气泡；关闭页面期间不会发系统通知。
 
-以下菜单截图来自源码版的真实隔离运行；下面的 npm 安装命令目前仍安装已发布的 0.2.3，文首 GIF 也是 0.2.3 的演示。
+## 安装与更新
 
-![源码版卡尔快捷菜单：专注、喝水、休息、活动方式与回小窝](<docs/companion-menu.png>)
-
-## 安装
-
-在 DSH 的插件市场里装，或者用命令行：
+在 DSH 的插件市场里安装「谢谢卡尔」，或用命令行安装 / 更新到当前正式版本：
 
 ```powershell
-dsh plugin --profile web add dsh-thanks-carl
+dsh plugin --profile web add dsh-thanks-carl@0.3.0
 ```
 
-装好后**重启一次 `dsh web`**，再刷新页面，卡尔就出现了。插件列表里的名字会跟随界面语言显示为「谢谢卡尔」或「Thanks Carl」。
+装好后**重启一次 `dsh web`**，再刷新页面。已有安装也可以在插件市场里更新；插件列表里的名字会跟随界面语言显示为「谢谢卡尔」或「Thanks Carl」。本地链接开发安装与市场安装不同，不需要覆盖你的开发链接。
 
-需要 DSH Web GUI 0.2.1 或更高版本（不支持 0.3）；页面需在 `https` 或 `localhost` 下打开，浏览器过旧或被禁用本地存储时会自动停用，不影响 DSH 本身。
+这里的 **0.3.0 是卡尔插件版本**；支持的 DSH 仍为 `>=0.2.1-0 <0.3.0-0`（Web GUI），不是 DSH 0.3。页面需在 `https` 或 `localhost` 下打开；浏览器过旧或被禁用本地存储时会自动停用，不影响 DSH 本身。
 
 ## 使用
 
@@ -60,6 +56,7 @@ dsh plugin --profile web add dsh-thanks-carl
 | 设置 | 说明 |
 |---|---|
 | 模式 | 事件彩蛋 / 常驻桌宠 |
+| 活动方式 | 默认乖乖待着，可选自己逛逛 |
 | 本轮完成彩蛋 | 任务完成后允许卡尔出现 |
 | 任务完成必出现 | 勾上则每轮都来；不勾按概率和间隔出现 |
 | 出现概率 / 彩蛋间隔 | 默认 0.15 / 30 分钟 |
@@ -73,9 +70,9 @@ dsh plugin --profile web add dsh-thanks-carl
 
 「召唤卡尔」立即让卡尔出现；下方的预览按钮可以分别看完成彩蛋、喝水、吃饭、休息长什么样。气泡上的「稍后 10 分钟」只对提醒有效。
 
-![喝水提醒](<docs/screenshots/03-water.png>)
+![专注计时：卡尔安静陪伴，支持暂停和结束](<docs/screenshots/08-focus.png>)
 
-把卡尔拖到屏幕另一侧就会换边停靠；手机上它会缩在角落，不挡内容。
+把卡尔拖到屏幕另一侧就会换边停靠；手机上可长按打开菜单，菜单限高，保持在屏幕内。
 
 ## 隐私
 
@@ -83,14 +80,10 @@ dsh plugin --profile web add dsh-thanks-carl
 - 设置和上传的图片都保存在你当前浏览器里（localStorage），不跨设备同步。
 - 不申请系统通知权限，不采集任何统计。
 
-## 兼容性
+## 兼容性与限制
 
-- DeepSeek Harness `>=0.2.1-0 <0.3.0-0`（Web GUI）
-- Node.js `>=22.12`（仅安装时用到）
-- 支持 Web Locks 的现代浏览器（Chrome / Edge / Firefox / Safari 近期版本）
-
-## 已知限制
-
+- DeepSeek Harness `>=0.2.1-0 <0.3.0-0`（Web GUI），Node.js `>=22.12`。
+- 需要支持 Web Locks 的现代浏览器（Chrome / Edge / Firefox / Safari 近期版本）。
 - 页面要开着才可能提醒；关掉浏览器就不会响，也不会弹系统通知。
 - 后台标签页或电脑睡眠期间错过的提醒不会补发。
 - 同一浏览器多标签页会去重，只出现一次；换浏览器或换端口就是另一份设置。
@@ -137,20 +130,20 @@ pwsh -File scripts/test-install.ps1
 
 ## English
 
-A quiet Carl the Hedgehog easter egg for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness): when a turn really finishes, Carl peeks in from the edge of the screen and says "谢谢卡尔" — and reminds you to drink water, eat, and take breaks.
+A quiet, local Carl companion for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness): pat reactions, a shared 25/45-minute focus timer, a quick menu, optional edge wandering, completion easter eggs and water/meal/break reminders.
 
-- **Completion easter egg**: 15% chance per finished turn, 30-minute cooldown by default; failed, cancelled or interrupted turns are never congratulated.
-- **Two modes**: occasional easter egg, or a resident desktop pet.
-- **Bundled photo**: the original patina version, a clearer variant of the same photo, or upload your own and restore the original anytime.
-- **Local reminders**: water every 60 minutes, meals at 12:00 and 18:00, work breaks off by default, quiet hours 00:00–08:00, snooze 10 minutes.
-- **Fully local**: no network, no telemetry, never reads your conversation, no model calls.
-
-Unreleased in source: pet reactions, a shared 25/45-minute focus timer with pause/resume, and a local quick menu (water acknowledgment, one-hour/today quiet, wake). Closing the menu keeps a manually summoned Carl visible; “回小窝” returns it to a small avatar without ending focus. Optional edge wandering is off by default and pauses during interaction, focus, sleep, background use or reduced motion. Drag follows your pointer and docks gently; all animation uses the original photograph. npm still serves 0.2.3; the GIF above shows that published version.
+- Pat with a click, Enter or Space; four rapid pats make Carl shy.
+- Focus supports pause/resume/end and persists across reloads and tabs. No automatic next round.
+- Close only the menu with ×, outside click or Escape; “回小窝” leaves a small avatar without ending focus or quiet time.
+- Wandering is off by default and pauses during interaction, focus, quiet hours, background use or reduced motion. Drag follows the pointer and docks gently. All animation uses the original photograph.
+- Completion easter eggs default to 15% with a 30-minute cooldown; failed/cancelled/interrupted turns are never congratulated.
+- Local reminders: water every 60 minutes, meals at 12:00/18:00, breaks off, quiet hours 00:00–08:00, snooze 10 minutes.
+- No network, telemetry, chat reading or model calls. Closed pages do not send system notifications.
 
 ```powershell
-dsh plugin --profile web add dsh-thanks-carl
+dsh plugin --profile web add dsh-thanks-carl@0.3.0
 ```
 
-Restart `dsh web` once, then reload the page. Settings live under Plugins → Installed → dsh-thanks-carl → Plugin settings. Requires DSH 0.2.1+ (<0.3) and Node 22.12+ at install time. MIT for the code; the Carl meme photo ships for personal, non-commercial use with this plugin only.
+Restart `dsh web` once, then reload. Settings: Plugins → Installed → dsh-thanks-carl → Plugin settings. **Plugin 0.3.0 still requires DSH 0.2.1+ (<0.3)** and Node 22.12+. The 7-second GIF shows actual 0.3.0 interactions in an isolated DSH instance. MIT for code; the Carl photo is provided for personal, non-commercial use with this plugin only.
 
 Related local plugins: [dsh-cost-voice](https://github.com/gongfpp/dsh-cost-voice) (per-turn spend voice announcements) and [dsh-novel-fish](https://github.com/gongfpp/dsh-novel-fish) (read local novels under the chat without sending them to the model).
