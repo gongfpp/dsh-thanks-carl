@@ -1,0 +1,13 @@
+import idle from '../assets/actions/01_idle.webp';
+import wave from '../assets/actions/02_wave.webp';
+import petted from '../assets/actions/03_petted.webp';
+import shy from '../assets/actions/04_shy.webp';
+import sleepy from '../assets/actions/05_sleepy.webp';
+import celebrate from '../assets/actions/06_celebrate.webp';
+import walk from '../assets/actions/07_walk.webp';
+import roll from '../assets/actions/08_roll.webp';
+import fear from '../assets/actions/09_fear.webp';
+import excited from '../assets/actions/10_excited.webp';
+import bristle from '../assets/actions/11_bristle.webp';
+import belly_up from '../assets/actions/12_belly_up.webp';
+export const actionImages = {idle,wave,petted,shy,sleepy,celebrate,walk,roll,fear,excited,bristle,belly_up};

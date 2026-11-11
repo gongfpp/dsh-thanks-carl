@@ -45,3 +45,18 @@ test('blocked local storage produces visible action error instead of pretending 
   const env=environment();env.localStorage.setItem=()=>{throw Error('blocked');};const c=createController(env);t.after(()=>c.dispose());await settle();
   assert.equal(c.getSnapshot().automatic,false);assert.equal(await c.focus('start',25),false);assert.equal(c.getSnapshot().focus,null);assert.match(c.getSnapshot().error,/操作未保存/);
 });
+test('manual actions are validated, local and protected against stale finish callbacks',async t=>{
+  const env=environment(),c=createController(env);t.after(()=>c.dispose());await settle();
+  assert.equal(c.playAction('roll'),true);const first=c.getSnapshot().pose;assert.equal(first.name,'roll');assert.equal(first.manual,true);
+  assert.equal(c.playAction('belly_up'),true);const next=c.getSnapshot().pose;c.finishAction(first.id);assert.equal(c.getSnapshot().pose,next);c.finishAction(next.id);assert.equal(c.getSnapshot().pose,null);
+  assert.equal(c.playAction('unknown'),false);assert.equal(env.requests,0);
+  c.pet();assert.equal(c.getSnapshot().pose.name,'petted');c.dismiss();assert.equal(c.getSnapshot().pose,null);
+  await c.update({animations:false});assert.equal(c.playAction('wave'),false);c.pet();assert.equal(c.getSnapshot().pose,null);
+});
+test('custom photos are never replaced by AI actions and quiet changes remain explicit',async t=>{
+  const env=environment(),c=createController(env);t.after(()=>c.dispose());await settle();
+  await c.setQuiet('hour');assert.equal(c.getSnapshot().pose.name,'sleepy');assert.equal(c.getSnapshot().pose.manual,true);
+  await c.setQuiet('off');assert.equal(c.getSnapshot().pose.name,'wave');
+  await c.saveImages({clear:'data:image/png;base64,AAAA',patina:'data:image/png;base64,AAAA'});assert.equal(c.getSnapshot().pose,null);assert.equal(c.playAction('wave'),false);
+  c.clearImages();assert.equal(c.playAction('wave'),true);await c.focus('start',25);assert.equal(c.getSnapshot().pose,null);
+});

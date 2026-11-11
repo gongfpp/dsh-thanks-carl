@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
+import { ACTIONS } from '../src/actions.mjs';
 const npm = process.env.npm_execpath;
 if (!npm) throw new Error('Run through npm run check so the exact npm executable is known.');
 const child = spawnSync(process.execPath,[npm,'pack','--dry-run','--json','--ignore-scripts'],{encoding:'utf8'});
@@ -20,5 +21,6 @@ assert.equal(manifest.exports?.['./icon'],'./icon.svg','the icon must also be re
 assert.equal(manifest.exports?.['./locale/*.json'],'./locale/*.json');
 for(const name of ['zh','en']){const meta=JSON.parse(await readFile(`locale/${name}.json`,'utf8'));assert.ok(meta.meta?.title && meta.meta?.description,`locale/${name}.json needs meta.title and meta.description`);}
 const host=await readFile('index.js','utf8');assert.ok(!host.includes('thanks-carl-fixture'));
+const client=await readFile('client.js','utf8');for(const action of ACTIONS){const bytes=await readFile(`assets/actions/${action.file}.webp`);assert.ok(client.includes(bytes.toString('base64')),`The packaged client embeds the approved ${action.id} sprite`);}assert.ok(paths.includes('assets/actions/README.md'));assert.ok(!paths.some(p=>/^assets\/actions\/.*\.webp$/.test(p)),'Inline sprites must not be duplicated in the npm archive');
 await mkdir('artifacts',{recursive:true});await writeFile('artifacts/distribution-check.json',JSON.stringify({passed:true,filename:result.filename,size:result.size,files:paths,bundledCarlVariants:imageFiles,noFixture:true,runtimeDependencies:0},null,2));
 console.log(`Package boundary passed: ${paths.length} files, ${(result.size/1024).toFixed(1)} KiB archive estimate; root entries, locale metadata, icon, Carl variants, docs screenshots and the demo gif only; no private uploads, fixture, runtime state, catalog entry, or runtime dependencies.`);

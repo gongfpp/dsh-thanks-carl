@@ -3,6 +3,8 @@ import { createController } from './controller.mjs';
 import { thanksText, quiet } from './core.mjs';
 import { canWander, dragPosition, startWander } from './motion.mjs';
 import { focusRemaining } from './companion.mjs';
+import { ACTIONS, spriteState } from './actions.mjs';
+import { SpritePhoto } from './SpritePhoto.jsx';
 import { importImage, validImages } from './images.mjs';
 import css from './style.css';
 import placeholder from '../assets/choose-photo.svg';
@@ -17,13 +19,15 @@ function Overlay({controller:c, useSessions}) {
   const current=useSessions(s => Object.values(s.byId).find(row => (row?.retainedBy?.mainView ?? 0) > 0)?.id);
   useEffect(() => { c.select(current); },[c,current]);
   const drag=useRef(null), hold=useRef(null), stage=useRef(null), menuButton=useRef(null), menuClose=useRef(null), homeTimer=useRef(null), snap=useRef(null), roamOffset=useRef(0);
-  const [moving,setMoving]=useState(null), [menu,setMenu]=useState(false), [height,setHeight]=useState(100), [stay,setStay]=useState(false), [homePhase,setHomePhase]=useState(''), [hovering,setHovering]=useState(false), [focused,setFocused]=useState(false);
+  const [moving,setMoving]=useState(null), [menu,setMenu]=useState(false), [height,setHeight]=useState(100), [stay,setStay]=useState(false), [homePhase,setHomePhase]=useState(''), [hovering,setHovering]=useState(false), [focused,setFocused]=useState(false), [walking,setWalking]=useState(false);
   const [background,setBackground]=useState(document.visibilityState !== 'visible'), [reduced,setReduced]=useState(() => matchMedia('(prefers-reduced-motion: reduce)').matches);
   const event=v.event, reminder=event && ['water','meal','rest'].includes(event.kind), sleeping=v.quietUntil > v.now;
   // External-store bubble clearing can render before the queued stay update.
   // Keep the captured button mounted throughout a drag, including easter mode.
-  const visible=!!(config.enabled && (homePhase === 'leaving' || (!v.hidden && (stay || drag.current?.moved || menu || event || v.focus || config.mode === 'resident'))));
-  const roaming=canWander({enabled:config.enabled,activity:config.activity,visible,menu,focus:v.focus,sleeping:sleeping || quiet(config,v.now),reduced,background,dragging:!!moving,interacting:hovering || focused,event:event || homePhase});
+  const visible=!!(config.enabled && (homePhase === 'leaving' || (!v.hidden && (stay || drag.current?.moved || menu || event || v.pose || v.focus || config.mode === 'resident'))));
+  const roaming=canWander({enabled:config.enabled,activity:config.activity,visible,menu,focus:v.focus,sleeping:sleeping || quiet(config,v.now),reduced,background,dragging:!!moving,interacting:hovering || focused,event:event || homePhase || v.pose});
+  const animation=spriteState({enabled:config.animations,custom:validImages(v.images),reduced,visible,background,dragging:!!moving || !!homePhase,menu,focus:v.focus && v.focus.status !== 'finished',sleeping,dnd:quiet(config,v.now),pose:v.pose,walking,interacting:hovering || focused});
+  useEffect(()=>{if (v.pose && (reduced || !config.animations || validImages(v.images) || (!v.pose.manual && (background || sleeping || quiet(config,v.now))))) c.finishAction(v.pose.id);},[c,v.pose,reduced,config.animations,v.images,background,sleeping,config.dnd,config.dndStart,config.dndEnd,v.now]);
   useEffect(() => {
     const media=matchMedia('(prefers-reduced-motion: reduce)'), change=() => setReduced(media.matches), visibility=() => setBackground(document.visibilityState !== 'visible');
     media.addEventListener('change',change);document.addEventListener('visibilitychange',visibility);
@@ -36,7 +40,7 @@ function Overlay({controller:c, useSessions}) {
   useEffect(() => {roamOffset.current=0;stage.current?.style.setProperty('--tc-roam-y','0px');},[config.top,config.edge,visible]);
   useEffect(() => {
     const element=stage.current;if (!roaming || !element) return;
-    return startWander({read:() => ({offset:roamOffset.current,anchor:Math.max(8,Math.min(innerHeight-height-8,config.top*innerHeight-height/2)),height,viewport:innerHeight}),write:value => {roamOffset.current=value;element.style.setProperty('--tc-roam-y',`${value}px`);}});
+    return startWander({read:() => ({offset:roamOffset.current,anchor:Math.max(8,Math.min(innerHeight-height-8,config.top*innerHeight-height/2)),height,viewport:innerHeight}),write:value => {roamOffset.current=value;element.style.setProperty('--tc-roam-y',`${value}px`);},onMoving:setWalking});
   },[roaming,height,config.top,config.edge]);
   useLayoutEffect(() => {
     if (moving || !snap.current || !stage.current) return;
@@ -89,6 +93,7 @@ function Overlay({controller:c, useSessions}) {
     else if (!drag.current.held) c.pet();
     drag.current=null;setMoving(null);
   }
+  function playAction(name) {if(c.playAction(name)){setStay(true);setMenu(false);menuButton.current?.focus();}}
   async function start(minutes) {if (await c.focus('start',minutes)) setMenu(false);}
   async function acknowledgeWater() {if (await c.drankWater()) {setMenu(false);menuButton.current?.focus();}}
   return <div ref={stage} className={`tc-stage tc-${pos.edge} ${sleeping ? 'tc-sleeping' : ''} ${homePhase ? `tc-home-${homePhase}` : ''} ${moving ? 'tc-dragging' : ''}`} data-thanks-carl={visible ? 'overlay' : 'launcher'} data-roaming={roaming ? 'active' : 'paused'} onPointerEnter={() => setHovering(true)} onPointerLeave={() => setHovering(false)} onFocusCapture={() => setFocused(true)} onBlurCapture={e => {if (!e.currentTarget.contains(e.relatedTarget)) setFocused(false);}} style={{top:moving ? `${moving.top}px` : `clamp(8px, calc(${pos.top*100}dvh - ${height/2}px + var(--tc-roam-y, 0px)), calc(100dvh - ${height}px - 8px))`,...(moving ? {left:`${moving.left}px`,right:'auto'} : {}), '--tc-size':`${config.size}px`}}>
@@ -99,6 +104,7 @@ function Overlay({controller:c, useSessions}) {
         <button disabled={!v.automatic} onClick={acknowledgeWater}>我喝过水了</button>
         {sleeping ? <button onClick={() => c.setQuiet('off')}>唤醒卡尔 · {new Date(v.quietUntil).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false})} 前安静</button> : <><button disabled={!v.automatic} onClick={() => c.setQuiet('hour')}>安静一小时</button><button disabled={!v.automatic} onClick={() => c.setQuiet('today')}>今天先休息</button></>}
         <label className="tc-menu-activity"><span>活动方式</span><select aria-label="活动方式" value={config.activity} onChange={e => c.update({activity:e.target.value})}><option value="still">乖乖待着</option><option value="wander">自己逛逛</option></select></label>
+        <details className="tc-action-menu"><summary>动作彩蛋</summary><div className="tc-action-grid">{ACTIONS.map(action=><button key={action.id} disabled={!config.animations || validImages(v.images) || reduced} onClick={()=>playAction(action.id)}>{action.label}</button>)}</div>{(!config.animations || validImages(v.images) || reduced) && <p>在设置中启用 AI 动作；自定义照片和系统减少动态时不播放。</p>}</details>
         <button onClick={goHome}>回小窝</button>
       </div>}
       {v.focus && visible && !moving && homePhase !== 'leaving' && !menu && <div className="tc-focus-chip" data-focus-status={v.focus.status}>
@@ -116,8 +122,8 @@ function Overlay({controller:c, useSessions}) {
       <div className="tc-pet-wrap">
         {visible ? <>
           <button ref={menuButton} className="tc-menu-toggle" aria-label="卡尔菜单" aria-expanded={menu} aria-haspopup="dialog" onClick={menu ? closeMenu : open}>···</button>
-          <button className={`tc-pet tc-${v.motion}`} aria-label="卡尔：拖动停靠，点按互动" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={() => {clearTimeout(hold.current);if (moving) snap.current=moving;drag.current=null;setMoving(null);}} onClick={e => {if (e.detail === 0) c.pet();}} onContextMenu={e => {e.preventDefault();clearTimeout(hold.current);open();}}>
-            <img src={image} draggable="false" alt={validImages(v.images) ? '自定义 Carl 照片' : '内置 Carl 原版梗图'} />
+          <button className={`tc-pet tc-${v.motion} ${animation ? 'tc-has-sprite' : ''}`} aria-label="卡尔：拖动停靠，点按互动" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={() => {clearTimeout(hold.current);if (moving) snap.current=moving;drag.current=null;setMoving(null);}} onClick={e => {if (e.detail === 0) c.pet();}} onContextMenu={e => {e.preventDefault();clearTimeout(hold.current);open();}}>
+            <SpritePhoto key={animation ? `${animation.name}:${animation.key}` : 'original'} animation={animation} image={image} alt={validImages(v.images) ? '自定义 Carl 照片' : '内置 Carl 原版梗图'} onDone={()=>v.pose && c.finishAction(v.pose.id)}/>
           </button>{sleeping && <span className="tc-sleep-mark" aria-label="卡尔休息中">z Z</span>}
         </> : <button ref={menuButton} className="tc-launcher" aria-label="召唤卡尔，打开快捷菜单" title="召唤卡尔" onClick={open}><img src={image} alt="" draggable="false"/></button>}
       </div>
@@ -149,6 +155,8 @@ function Settings({controller:c}) {
       <div className="tc-image-row"><img src={(validImages(v.images) ? v.images : builtInImages)[a.quality]} alt="当前 Carl 图片预览"/><div><label className="tc-upload">自定义替换<input type="file" accept="image/png,image/jpeg,image/webp" onChange={choose}/></label><button onClick={() => c.clearImages()}>恢复 Carl 原图</button></div></div>
       <p className="tc-note">默认已内置真实 Carl 梗图；自定义替换仅保存在本地浏览器，不会上传。</p>
       {imageError && <p role="alert">{imageError}</p>}
+      {check('animations','AI 多帧动作（可关闭恢复原图）')}
+      <p className="tc-note">动作来自用户提供的 AI 精灵表，不是原照片连拍；本地播放，不调用模型。自定义照片和系统减少动态时保留静态图片。</p>
       {select('quality','画质',[['patina','包浆版本'],['clear','同图相对清晰版本']])}
       {number('size','大小（px）',76,128)}
       {select('edge','停靠边缘',[['right','右侧'],['left','左侧']])}

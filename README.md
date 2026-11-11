@@ -6,22 +6,23 @@
 [![license](https://img.shields.io/npm/l/dsh-thanks-carl.svg)](LICENSE)
 [![dsh](https://img.shields.io/badge/dsh-0.2.1%2B-4D6BFE)](https://github.com/deepseek-ai/deepseek-harness)
 
-让卡尔陪你工作：摸摸会回应，一起专注 25 / 45 分钟，偶尔沿屏幕边缘挪一挪；也保留任务完成彩蛋和喝水、吃饭、休息提醒。
+让卡尔陪你工作：会招手、被摸摸会害羞，有 12 种多帧动作；陪你专注 25 / 45 分钟，偶尔沿屏幕边缘挪一挪，也保留任务完成彩蛋和喝水、吃饭、休息提醒。
 
-插件里自带卡尔照片，装上就能用——不用自己找图，也不用配置模型。
+动作在本地播放，不用配置模型。AI 动作来自用户提供并审核的精灵表，不是原照片连拍；可在设置里关闭，恢复内置 Carl 原图。
 
 ![卡尔 0.3.0 的摸摸回应、快捷菜单、专注计时和回小窝真实操作](<docs/screenshots/06-companion.gif>)
 
-<sub>7 秒真实操作演示：摸摸、打开菜单、开始专注、回小窝。使用隔离 DSH 实例录制，不是模拟界面。</sub>
+<sub>7 秒真实操作演示：摸摸、招手、翻滚、动作菜单、开始专注、回小窝。使用隔离 DSH 实例录制，不是模拟界面。</sub>
 
 ## 功能
 
-- **摸摸卡尔**：点一下或按 Enter/空格，它会回一句随机短话；快速连点四下会害羞，歇一会儿再摸。
+- **12 种多帧动作**：待机、招手、摸摸、害羞、瞌睡、庆祝、走路、翻滚、受惊、兴奋、炸毛、肚皮朝上。日常互动与提醒会联动常用动作；「动作彩蛋」里可以逐个手动播放，夸张动作不会无故打扰。
+- **摸摸卡尔**：点一下或按 Enter/空格，它会回一句随机短话并做动作；快速连点四下会害羞，歇一会儿再摸。
 - **陪你专注**：25 / 45 分钟，支持暂停、继续、结束；刷新页面或切会话不会重置，同一浏览器的标签页共用一个计时。到期邀请休息，不自动开始下一轮。
 - **就地小菜单**：点击卡尔旁的「···」、右键或长按照片，可以标记「我喝过水了」、安静一小时、今天先休息或唤醒卡尔。喝水会从现在重新计时；今天休息到本地午夜。
 - **任务完成的彩蛋**：一轮真的做完了，卡尔才有机会探头；默认 15% 概率、间隔至少 30 分钟。失败、取消、中断的轮次不会来道谢。
 - **两种模式**：事件彩蛋（偶尔出现）或常驻桌宠（一直陪着你）。常驻模式可以关掉「完成彩蛋」只留桌宠。
-- **自带照片**：原版包浆图，也可以换成同一张照片的清晰版；想用自己的图就上传一张，随时一键恢复卡尔原图。
+- **随时恢复原图**：关闭「AI 多帧动作」后使用原版包浆图或同图清晰版。上传自己的照片会自动停用 AI 替换；恢复 Carl 原图后，才重新使用已开启的动作。系统要求减少动态效果时也只显示原图。
 - **本地提醒**：喝水默认每 60 分钟，吃饭默认 12:00、18:00，工作间歇默认关；可以「稍后 10 分钟」。默认 00:00–08:00 勿扰。
 - **完全本地**：不联网、不读聊天内容、不发消息、不调用模型；提示音默认关闭。
 
@@ -31,7 +32,7 @@
 
 - **关菜单不等于收起**：菜单右上角 ×、点空白或 Esc 只关菜单，手动唤出的卡尔继续陪着你；气泡的 × 只关闭提示。
 - **回小窝**：菜单里的「回小窝」让卡尔缩回边缘，只留一个小头像，点它再出来。不会停止专注计时或清除免扰；下一次正常到期的提醒仍可叫它出来。不想显示任何入口，关闭「启用卡尔」。手动召唤/回窝只作用于当前标签页，刷新后回到所选出现模式。
-- **可选边缘闲逛**：菜单或设置里把「活动方式」从默认的「乖乖待着」切到「自己逛逛」。每隔 20–40 秒在停靠位置上下 48px 内慢慢挪几步；拖动时跟手，松手回边缘轻轻停稳。保留原照片，不是新的逐帧走路动画。
+- **可选边缘闲逛**：菜单或设置里把「活动方式」从默认的「乖乖待着」切到「自己逛逛」。每隔 20–40 秒在停靠位置上下 48px 内慢慢挪几步，仅真正移动时播放走路动作；拖动时跟手，松手回边缘轻轻停稳。关闭 AI 动作后仍可用原照片轻移。
 
 菜单、提示气泡打开，鼠标/键盘正在操作卡尔，专注、睡觉、勿扰时段、页面后台或系统要求减少动态效果时，都暂停闲逛。免扰只抑制自动提醒和完成彩蛋，手动互动仍可用。专注结束后若已离开超过两分钟，只保留完成状态，不补弹气泡；关闭页面期间不会发系统通知。
 
@@ -57,6 +58,7 @@ dsh plugin --profile web add dsh-thanks-carl@0.3.0
 |---|---|
 | 模式 | 事件彩蛋 / 常驻桌宠 |
 | 活动方式 | 默认乖乖待着，可选自己逛逛 |
+| AI 多帧动作 | 默认开；关闭恢复原图，自定义照片或减少动态效果时不播放 |
 | 本轮完成彩蛋 | 任务完成后允许卡尔出现 |
 | 任务完成必出现 | 勾上则每轮都来；不勾按概率和间隔出现 |
 | 出现概率 / 彩蛋间隔 | 默认 0.15 / 30 分钟 |
@@ -124,7 +126,7 @@ pwsh -File scripts/test-install.ps1
 
 ## License
 
-代码为 [MIT](LICENSE)。
+代码为 [MIT](LICENSE)。内置照片及基于它制作的 AI 动作不因此获得额外肖像或素材授权，仅随本插件用于个人、非商业用途；AI 动作来源与处理方式见[动作素材说明](<assets/actions/README.md>)。
 
 ---
 
@@ -132,10 +134,11 @@ pwsh -File scripts/test-install.ps1
 
 A quiet, local Carl companion for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness): pat reactions, a shared 25/45-minute focus timer, a quick menu, optional edge wandering, completion easter eggs and water/meal/break reminders.
 
-- Pat with a click, Enter or Space; four rapid pats make Carl shy.
+- Twelve user-approved AI sprite actions: idle, wave, petted, shy, sleepy, celebrate, walk, roll, fear, excited, bristle and belly-up. Common actions follow local events; dramatic ones are manual menu easter eggs. These are AI-derived frames, not a photographic sequence.
+- Pat with a click, Enter or Space; four rapid pats make Carl shy. Turn off AI actions to restore the original photo; custom photos and reduced motion always use the original/static image.
 - Focus supports pause/resume/end and persists across reloads and tabs. No automatic next round.
 - Close only the menu with ×, outside click or Escape; “回小窝” leaves a small avatar without ending focus or quiet time.
-- Wandering is off by default and pauses during interaction, focus, quiet hours, background use or reduced motion. Drag follows the pointer and docks gently. All animation uses the original photograph.
+- Wandering is off by default and pauses during interaction, focus, quiet hours, background use or reduced motion. Drag follows the pointer and docks gently. The walking sprite plays only during movement; AI-off mode retains gentle original-photo movement.
 - Completion easter eggs default to 15% with a 30-minute cooldown; failed/cancelled/interrupted turns are never congratulated.
 - Local reminders: water every 60 minutes, meals at 12:00/18:00, breaks off, quiet hours 00:00–08:00, snooze 10 minutes.
 - No network, telemetry, chat reading or model calls. Closed pages do not send system notifications.

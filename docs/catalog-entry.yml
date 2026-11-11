@@ -6,5 +6,5 @@ name: gongfpp/dsh-thanks-carl
 category: fun
 icon: https://raw.githubusercontent.com/gongfpp/dsh-thanks-carl/main/assets/icon-180.png
 description:
-  en: "Local Carl companion: pat reactions, a 25/45-minute focus timer, quick menu, optional edge wandering, completion easter eggs and reminders. No model calls or chat reading."
-  zh: "摸摸会回应的卡尔，陪你专注 25/45 分钟；快捷菜单、可选边缘闲逛、完成彩蛋和本地提醒，不读对话、不调用模型。"
+  en: "Local Carl companion with 12 AI sprite actions, pat reactions, a 25/45-minute focus timer, quick menu, edge wandering and reminders. Original-photo fallback; no model calls or chat reading."
+  zh: "12 种本地 AI 多帧动作的卡尔桌宠：摸摸、25/45 分钟专注、快捷菜单、边缘闲逛、完成彩蛋和本地提醒。可恢复原图，不读对话、不调用模型。"

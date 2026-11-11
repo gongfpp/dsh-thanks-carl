@@ -2,7 +2,7 @@
   "name": "dsh-thanks-carl",
   "version": "0.3.0",
   "icon": "./icon.svg",
-  "description": "Local Carl companion for DSH: pat reactions, focus timer, quick menu, edge wandering and reminders",
+  "description": "Local Carl companion for DSH: 12 AI sprite actions, pat reactions, focus timer, quick menu and reminders",
   "type": "module",
   "license": "MIT",
   "author": "gongfpp",
@@ -38,7 +38,11 @@
     "cordis.patch.yml",
     "locale/*.json",
     "icon.svg",
-    "assets/",
+    "assets/choose-photo.svg",
+    "assets/carl-clear.png",
+    "assets/carl-patina.png",
+    "assets/icon-180.png",
+    "assets/actions/README.md",
     "README.md",
     "CHANGELOG.md",
     "LICENSE",
@@ -69,7 +73,7 @@
   "dshhub": {
     "schemaVersion": 1,
     "displayName": "dsh-thanks-carl",
-    "summary": "摸摸会回应的卡尔，陪你专注 25/45 分钟；快捷菜单、可选边缘闲逛、完成彩蛋和本地提醒，不读对话、不调用模型。",
+    "summary": "12 种本地 AI 多帧动作的卡尔桌宠，摸摸、25/45 分钟专注、快捷菜单与边缘闲逛；完成彩蛋和本地提醒，不读对话、不调用模型。",
     "categories": [
       "fun"
     ],

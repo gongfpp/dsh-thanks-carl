@@ -1,20 +1,22 @@
 import { completionText, reminderText, selectEvent } from './core.mjs';
 import { createRepository } from './storage.mjs';
 import { petReaction } from './companion.mjs';
+import { eventAction, validAction } from './actions.mjs';
 export function createController(env = window) {
   const repo = createRepository(env.localStorage,env.navigator.locks);
   const zone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
-  let view = {config:repo.config(), images:repo.images(), event:null, automatic:repo.automatic, error:'', hidden:false, ...repo.activity(), now:Date.now(), motion:''};
+  let view = {config:repo.config(), images:repo.images(), event:null, automatic:repo.automatic, error:'', hidden:false, ...repo.activity(), now:Date.now(), motion:'', pose:null};
   const listeners = new Set();
   let stopped = false, busy = false, sessionId, generation = 0, cursor = null, expiry = null, motionTimer=null;
-  let lastPat=0, pats=0, lastLine=-1, shyUntil=0;
+  let lastPat=0, pats=0, lastLine=-1, shyUntil=0, poseSequence=0;
+  function makePose(name,manual=false) { return view.config.enabled && view.config.animations && !view.images && validAction(name) ? {name,manual,id:++poseSequence} : null; }
   const emit = patch => { if (stopped) return; view = {...view,...patch}; for (const f of listeners) f(); };
   function show(event) {
     if (!view.config.enabled) return;
     const chosen = event.kind === 'pet' && view.event?.kind === 'pet' ? event : selectEvent(view.event,event,Date.now());
     if (chosen === view.event) return;
     clearTimeout(expiry);
-    emit({event:chosen,hidden:false});
+    emit({event:chosen,hidden:false,pose:makePose(eventAction(chosen,chosen.motion),!!chosen.preview || chosen.kind === 'pet')});
     expiry = setTimeout(() => emit({event:null}), Math.max(0,Math.min(chosen.expires-Date.now(),chosen.priority === 3 ? 60_000 : 18_000)));
     if (view.config.sound) beep();
   }
@@ -62,7 +64,7 @@ export function createController(env = window) {
     finally { busy = false; }
   }
   const reload = event => {
-    if (!event || [null,'thanks-carl.config.v1','thanks-carl.images.v1'].includes(event.key)) emit({config:repo.config(),images:repo.images(),event:null});
+    if (!event || [null,'thanks-carl.config.v1','thanks-carl.images.v1'].includes(event.key)) emit({config:repo.config(),images:repo.images(),event:null,pose:null});
     if (!event || event.key === null || event.key === 'thanks-carl.ledger.v1') {
       const activity=repo.activity();
       const suppress=activity.quietUntil > Date.now() || activity.focus?.status === 'running';
@@ -88,11 +90,11 @@ export function createController(env = window) {
       emit({event:view.event?.kind === 'completion' ? null : view.event}); void tick(); },
     async update(patch) {
       try {
-        const config = repo.update(patch); emit({config,hidden:false,event:config.enabled ? view.event : null,error:''});
+        const config = repo.update(patch); emit({config,hidden:false,event:config.enabled ? view.event : null,pose:config.enabled && config.animations ? view.pose : null,error:''});
         if (['water','waterMinutes','rest','restMinutes','meals','mealTimes','enabled'].some(k => Object.hasOwn(patch,k))) await repo.resetTimers(zone());
       } catch { emit({error:'本地存储不可用或已满，设置未保存。'}); }
     },
-    async saveImages(images) { try { repo.saveImages(images); emit({images,error:''}); } catch { emit({error:'图片无法保存，本地存储可能已满。'}); } },
+    async saveImages(images) { try { repo.saveImages(images); emit({images,pose:null,error:''}); } catch { emit({error:'图片无法保存，本地存储可能已满。'}); } },
     clearImages() { repo.clearImages(); emit({images:null}); },
     preview(kind='visit') { const t = Date.now(); emit({event:null}); show({id:`preview:${t}`,kind,priority:kind === 'visit' ? 1 : 3,time:t,expires:t+60_000,text:kind === 'completion' ? completionText('completed') : kind === 'visit' ? '这是卡尔。它来陪你一小会儿。' : reminderText(kind),preview:true}); },
     pet() {
@@ -101,16 +103,16 @@ export function createController(env = window) {
       const reaction=petReaction(pats,lastLine); lastLine=reaction.index;
       if (reaction.motion === 'shy') { shyUntil=now+2500; pats=0; }
       clearTimeout(motionTimer); emit({motion:''});
-      show({id:`pet:${now}`,kind:'pet',priority:1,time:now,expires:now+6000,text:reaction.text});
+      show({id:`pet:${now}`,kind:'pet',priority:1,time:now,expires:now+6000,text:reaction.text,motion:reaction.motion});
       emit({motion:reaction.motion}); motionTimer=setTimeout(() => emit({motion:''}),reaction.motion === 'shy' ? 2000 : 600);
     },
     focus(action,minutes) { return activityAction(async() => {
       const ok=await repo.focus(action,minutes);
-      if (ok && (action === 'start' || action === 'end')) {clearTimeout(expiry);emit({event:null});}
+      if (ok && (action === 'start' || action === 'end')) {clearTimeout(expiry);emit({event:null,pose:null});}
       return ok;
     }); },
     async setQuiet(kind) {
-      if (await activityAction(() => repo.setQuiet(kind))) { clearTimeout(expiry); emit({event:null}); }
+      if (await activityAction(() => repo.setQuiet(kind))) { clearTimeout(expiry); emit({event:null,pose:makePose(kind === 'off' ? 'wave' : 'sleepy',true)}); }
     },
     async drankWater() {
       if (await activityAction(() => repo.drankWater(zone()))) {
@@ -120,10 +122,12 @@ export function createController(env = window) {
       }
       return false;
     },
-    summon() { emit({hidden:false}); },
+    playAction(name) { const pose=makePose(name,true);if (!pose) return false;emit({pose,hidden:false});return true; },
+    finishAction(id) { if (view.pose?.id === id) emit({pose:null}); },
+    summon() { emit({hidden:false,pose:makePose('wave',true)}); },
     closeBubble() { clearTimeout(expiry); emit({event:null}); },
-    dismiss() { clearTimeout(expiry); emit({event:null,hidden:true}); },
-    async snooze() { const event = view.event; if (event && ['water','meal','rest'].includes(event.kind)) await repo.snooze(event,zone()); clearTimeout(expiry); emit({event:null,hidden:true}); },
+    dismiss() { clearTimeout(expiry); emit({event:null,pose:null,hidden:true}); },
+    async snooze() { const event = view.event; if (event && ['water','meal','rest'].includes(event.kind)) await repo.snooze(event,zone()); clearTimeout(expiry); emit({event:null,pose:null,hidden:true}); },
     dispose() { stopped = true; generation++; clearTimeout(expiry); clearTimeout(motionTimer); clearInterval(timer); clearInterval(clockTimer); env.removeEventListener('storage',reload); env.document.removeEventListener('visibilitychange',tick); listeners.clear(); },
   };
 }

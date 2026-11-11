@@ -2,6 +2,7 @@ import { chromium } from 'playwright';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
+import { verifyActions } from './verify-actions-browser.mjs';
 const logBytes = await readFile('.runtime/host.log'); const log = logBytes[0] === 255 && logBytes[1] === 254 ? logBytes.toString('utf16le') : logBytes.toString('utf8');
 const auth = [...log.matchAll(/http:\/\/127\.0\.0\.1:3345\/\?token=[A-Za-z0-9_-]+/g)].at(-1)?.[0];
 if(!auth) throw new Error('Start run-isolated.ps1 -Fixture and save stdout to .runtime/host.log first.');
@@ -115,6 +116,7 @@ try {
   const dragPet=overlay.getByRole('button',{name:'卡尔：拖动停靠，点按互动',exact:true}), dragBox=await dragPet.boundingBox();await page.mouse.move(dragBox.x+dragBox.width/2,dragBox.y+dragBox.height/2);await page.mouse.down();await page.mouse.move(650,300,{steps:6});await page.locator('.tc-dragging').waitFor();const tracking=await dragPet.boundingBox();assert.ok(Math.abs(tracking.x+tracking.width/2-650)<4 && Math.abs(tracking.y+tracking.height/2-300)<4,'Pet tracks pointer before docking');await save('18-follow-pointer');await page.mouse.up();await page.clock.runFor(400);assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('thanks-carl.config.v1')).edge),'left');
   await overlay.getByRole('button',{name:'卡尔菜单',exact:true}).click();await menu.getByRole('button',{name:'回小窝',exact:true}).click();await page.clock.runFor(300);await page.locator('[data-thanks-carl="launcher"]').waitFor();await page.clock.runFor(42_000);assert.equal(await overlay.count(),0);await page.reload();await page.getByRole('button',{name:'账号菜单',exact:true}).waitFor();assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('thanks-carl.config.v1')).activity),'wander');
   results.tests.push('Opt-in real edge wandering stays within 48px, freezes during menu/sleep/focus/reduced motion/home; focus survives home; drag follows pointer and docks; activity persists');
+  await verifyActions({page,overlay,settings,controls:page.locator('[data-thanks-carl="settings"]'),closeSettings,save,results});
   await fixture({action:'toggle-plugin',enabled:false});
   await page.waitForFunction(()=>![...document.querySelectorAll('style')].some(e=>e.textContent.includes('.tc-stage{')));
   assert.equal((await page.request.get('http://127.0.0.1:3345/api/thanks-carl/status')).status(),404);
